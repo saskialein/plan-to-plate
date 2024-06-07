@@ -1,4 +1,4 @@
-# Full Stack FastAPI Template
+# Plan to Plate
 
 <a href="https://github.com/tiangolo/full-stack-fastapi-template/actions?query=workflow%3ATest" target="_blank"><img src="https://github.com/tiangolo/full-stack-fastapi-template/workflows/Test/badge.svg" alt="Test"></a>
 <a href="https://coverage-badge.samuelcolvin.workers.dev/redirect/tiangolo/full-stack-fastapi-template" target="_blank"><img src="https://coverage-badge.samuelcolvin.workers.dev/tiangolo/full-stack-fastapi-template.svg" alt="Coverage"></a>
@@ -26,38 +26,6 @@
 - 📞 [Traefik](https://traefik.io) as a reverse proxy / load balancer.
 - 🚢 Deployment instructions using Docker Compose, including how to set up a frontend Traefik proxy to handle automatic HTTPS certificates.
 - 🏭 CI (continuous integration) and CD (continuous deployment) based on GitHub Actions.
-
-### Dashboard Login
-
-[![API docs](img/login.png)](https://github.com/tiangolo/full-stack-fastapi-template)
-
-### Dashboard - Admin
-
-[![API docs](img/dashboard.png)](https://github.com/tiangolo/full-stack-fastapi-template)
-
-### Dashboard - Create User
-
-[![API docs](img/dashboard-create.png)](https://github.com/tiangolo/full-stack-fastapi-template)
-
-### Dashboard - Items
-
-[![API docs](img/dashboard-items.png)](https://github.com/tiangolo/full-stack-fastapi-template)
-
-### Dashboard - User Settings
-
-[![API docs](img/dashboard-user-settings.png)](https://github.com/tiangolo/full-stack-fastapi-template)
-
-### Interactive API documentation
-
-[![API docs](img/docs.png)](https://github.com/tiangolo/full-stack-fastapi-template)
-
-
-
-## How to use it
-
-You can **just fork or clone** this repository and use it as is.
-
-✨ It just works. ✨
 
 ### Configure
 
