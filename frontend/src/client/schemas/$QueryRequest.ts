@@ -2,13 +2,9 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export const $UpdatePassword = {
+export const $QueryRequest = {
     properties: {
-        current_password: {
-            type: 'string',
-            isRequired: true,
-        },
-        new_password: {
+        query: {
             type: 'string',
             isRequired: true,
         },

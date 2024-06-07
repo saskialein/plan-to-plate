@@ -2,31 +2,30 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { Message } from '../models/Message';
+import type { QueryRequest } from '../models/QueryRequest';
+import type { QueryResponse } from '../models/QueryResponse';
 
 import type { CancelablePromise } from '../core/CancelablePromise';
 import { OpenAPI } from '../core/OpenAPI';
 import { request as __request } from '../core/request';
 
-export class UtilsService {
+export class LlmService {
 
     /**
-     * Test Email
-     * Test emails.
-     * @returns Message Successful Response
+     * Llm Query
+     * @returns QueryResponse Successful Response
      * @throws ApiError
      */
-    public static testEmail({
-        emailTo,
+    public static llmQuery({
+        requestBody,
     }: {
-        emailTo: string,
-    }): CancelablePromise<Message> {
+        requestBody: QueryRequest,
+    }): CancelablePromise<QueryResponse> {
         return __request(OpenAPI, {
             method: 'POST',
-            url: '/api/v1/utils/test-email/',
-            query: {
-                'email_to': emailTo,
-            },
+            url: '/api/v1/llm/llm-query',
+            body: requestBody,
+            mediaType: 'application/json',
             errors: {
                 422: `Validation Error`,
             },

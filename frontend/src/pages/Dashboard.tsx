@@ -1,6 +1,7 @@
 import { useQueryClient } from 'react-query'
 import { UserOut } from '../client'
 import { Box, Container, Text } from '@chakra-ui/react'
+import { LLMQuery } from '../components/Dashboard/LLMQuery'
 
 export function Dashboard() {
   const queryClient = useQueryClient()
@@ -16,6 +17,7 @@ export function Dashboard() {
           </Text>
           <Text>Welcome back, nice to see you again!</Text>
         </Box>
+        <LLMQuery />
       </Container>
     </>
   )
