@@ -3,6 +3,7 @@ import { ChakraProvider } from '@chakra-ui/react'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import { RouterProvider, createRouter } from '@tanstack/react-router'
 import { routeTree } from './routeTree.gen'
+import './assets/fonts/fonts.css'
 
 import { OpenAPI } from './client'
 import theme from './theme'

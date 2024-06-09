@@ -7,7 +7,7 @@ import {
   MenuItem,
   MenuList,
 } from '@chakra-ui/react'
-import { FaUserAstronaut } from 'react-icons/fa'
+import { BiDish } from 'react-icons/bi'
 import { FiLogOut, FiUser } from 'react-icons/fi'
 
 import useAuth from '../../hooks/useAuth'
@@ -33,7 +33,7 @@ const UserMenu: React.FC = () => {
           <MenuButton
             as={IconButton}
             aria-label="Options"
-            icon={<FaUserAstronaut color="white" fontSize="18px" />}
+            icon={<BiDish color="white" fontSize="24px" />}
             bg="ui.main"
             isRound
           />

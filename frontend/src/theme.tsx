@@ -1,10 +1,29 @@
-import { extendTheme } from '@chakra-ui/react'
+import { createMultiStyleConfigHelpers, extendTheme } from '@chakra-ui/react'
+import { tagAnatomy } from '@chakra-ui/anatomy'
 
 const disabledStyles = {
   _disabled: {
     backgroundColor: 'ui.main',
   },
 }
+
+const { definePartsStyle, defineMultiStyleConfig } =
+  createMultiStyleConfigHelpers(tagAnatomy.keys)
+
+const baseStyle = definePartsStyle({
+  container: {
+    color: 'white',
+    borderWidth: '1px',
+    borderColor: 'ui.main',
+    borderRadius: 'full',
+    fontSize: 'lg',
+    p: 2,
+  },
+})
+
+export const tagTheme = defineMultiStyleConfig({
+  variants: { custom: baseStyle },
+})
 
 const theme = extendTheme({
   colors: {
@@ -54,6 +73,7 @@ const theme = extendTheme({
         },
       },
     },
+    Tag: tagTheme,
   },
 })
 

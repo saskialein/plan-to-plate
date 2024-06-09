@@ -19,7 +19,7 @@ import {
   ApiError,
   Body_login_login_access_token as AccessToken,
 } from '../client'
-import Logo from '../assets/images/fastapi-logo.svg'
+import Logo from '../assets/images/plantoplate-logo.png'
 import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons'
 import { Link as RouterLink } from '@tanstack/react-router'
 

@@ -7,6 +7,7 @@ import {
   DrawerContent,
   DrawerOverlay,
   Flex,
+  Heading,
   IconButton,
   Image,
   Text,
@@ -16,7 +17,7 @@ import {
 import { FiLogOut, FiMenu } from 'react-icons/fi'
 import { useQueryClient } from 'react-query'
 
-import Logo from '../../assets/images/fastapi-logo.svg'
+import Logo from '../../assets/images/plantoplate-logo.png'
 import { UserOut } from '../../client'
 import useAuth from '../../hooks/useAuth'
 import SidebarItems from './SidebarItems'
@@ -53,6 +54,9 @@ const Sidebar: React.FC = () => {
           <DrawerBody py={8}>
             <Flex flexDir="column" justify="space-between">
               <Box>
+                <Heading as="h1" size="xl" fontFamily="Getaway">
+                  Plan to Plate
+                </Heading>
                 <Image src={Logo} alt="logo" p={6} />
                 <SidebarItems onClose={onClose} />
                 <Flex
@@ -94,6 +98,9 @@ const Sidebar: React.FC = () => {
           borderRadius={12}
         >
           <Box>
+            <Heading fontSize="30px" fontFamily="Getaway">
+              Plan to Plate
+            </Heading>
             <Image src={Logo} alt="Logo" w="180px" maxW="2xs" p={6} />
             <SidebarItems />
           </Box>
