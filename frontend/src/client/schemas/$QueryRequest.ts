@@ -4,8 +4,18 @@
 /* eslint-disable */
 export const $QueryRequest = {
     properties: {
-        query: {
-            type: 'string',
+        diets: {
+            type: 'array',
+            contains: {
+                type: 'string',
+            },
+            isRequired: true,
+        },
+        vegetables: {
+            type: 'array',
+            contains: {
+                type: 'string',
+            },
             isRequired: true,
         },
     },

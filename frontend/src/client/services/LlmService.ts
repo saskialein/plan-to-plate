@@ -12,7 +12,8 @@ import { request as __request } from '../core/request';
 export class LlmService {
 
     /**
-     * Llm Query
+     * Generate meal plan
+     * Generate a meal plan based on selected diets and available vegetables.
      * @returns QueryResponse Successful Response
      * @throws ApiError
      */

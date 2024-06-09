@@ -1,23 +1,22 @@
-import { useQueryClient } from 'react-query'
-import { UserOut } from '../client'
-import { Box, Container, Text } from '@chakra-ui/react'
+// import { useQueryClient } from 'react-query'
+// import { UserOut } from '../client'
+import { Container, Stack, Text } from '@chakra-ui/react'
 import { LLMQuery } from '../components/Dashboard/LLMQuery'
 
 export function Dashboard() {
-  const queryClient = useQueryClient()
+  // const queryClient = useQueryClient()
 
-  const currentUser = queryClient.getQueryData<UserOut>('currentUser')
+  // const currentUser = queryClient.getQueryData<UserOut>('currentUser')
 
   return (
     <>
       <Container maxW="full">
-        <Box pt={12} m={4}>
-          <Text fontSize="2xl">
-            Hi, {currentUser?.full_name || currentUser?.email} 👋🏼
-          </Text>
-          <Text>Welcome back, nice to see you again!</Text>
-        </Box>
-        <LLMQuery />
+        <Stack pt={12} spacing={4}>
+          {/* <Box pt={12}> */}
+          <Text fontSize="2xl">Let's plan your meals for the week!</Text>
+          {/* </Box> */}
+          <LLMQuery />
+        </Stack>
       </Container>
     </>
   )

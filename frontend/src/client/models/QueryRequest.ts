@@ -4,6 +4,13 @@
 /* eslint-disable */
 
 export type QueryRequest = {
-    query: string;
+    /**
+     * List of diets to consider
+     */
+    diets: Array<string>;
+    /**
+     * List of vegetables available
+     */
+    vegetables: Array<string>;
 };
 
