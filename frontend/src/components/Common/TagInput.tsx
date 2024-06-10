@@ -113,7 +113,6 @@ export default forwardRef(function ChakraTagInput(
           .map((tag) => tag.trim())
           .filter((tag) => tag)
         addMultipleTags(event, tagsToAdd)
-        // setInputValue('')
         if (!event.isDefaultPrevented()) {
           setInputValue('')
         }
@@ -153,7 +152,7 @@ export default forwardRef(function ChakraTagInput(
         onPaste={handlePaste}
         onChange={handleInputChange}
         ref={ref}
-        placeholder="Paste or type and press Enter to add tags"
+        placeholder="Paste or type and press Enter to add"
       />
       <Wrap spacing={2} width="100%">
         {tags.map((tag, index) => (

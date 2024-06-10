@@ -3,8 +3,9 @@
 /* tslint:disable */
 /* eslint-disable */
 
-export type QueryRequest = {
-    diets: Array<string>;
-    vegetables: Array<string>;
+export type MealPlan = {
+    breakfast: string;
+    lunch: string;
+    dinner: string;
 };
 

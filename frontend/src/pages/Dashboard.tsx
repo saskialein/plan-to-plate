@@ -1,13 +1,7 @@
-// import { useQueryClient } from 'react-query'
-// import { UserOut } from '../client'
 import { Container, Stack, Text } from '@chakra-ui/react'
-import { LLMQuery } from '../components/Dashboard/LLMQuery'
+import { MealPlanGenerator } from '../components/Dashboard/MealPlanGenerator'
 
 export function Dashboard() {
-  // const queryClient = useQueryClient()
-
-  // const currentUser = queryClient.getQueryData<UserOut>('currentUser')
-
   return (
     <>
       <Container maxW="full">
@@ -15,7 +9,7 @@ export function Dashboard() {
           {/* <Box pt={12}> */}
           <Text fontSize="2xl">Let's plan your meals for the week!</Text>
           {/* </Box> */}
-          <LLMQuery />
+          <MealPlanGenerator />
         </Stack>
       </Container>
     </>
