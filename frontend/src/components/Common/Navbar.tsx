@@ -4,6 +4,7 @@ import { FaPlus } from 'react-icons/fa'
 
 import AddUser from '../Admin/AddUser'
 import AddItem from '../Items/AddItem'
+import { AddRecipe } from '../Recipes/AddRecipe'
 
 interface NavbarProps {
   type: string
@@ -12,6 +13,23 @@ interface NavbarProps {
 const Navbar: React.FC<NavbarProps> = ({ type }) => {
   const addUserModal = useDisclosure()
   const addItemModal = useDisclosure()
+  const addRecipeModal = useDisclosure()
+
+  const clickHandler = () => {
+    switch (type) {
+      case 'User':
+        addUserModal.onOpen()
+        break
+      case 'Item':
+        addItemModal.onOpen()
+        break
+      case 'Recipe':
+        addRecipeModal.onOpen()
+        break
+      default:
+        break
+    }
+  }
 
   return (
     <>
@@ -27,12 +45,16 @@ const Navbar: React.FC<NavbarProps> = ({ type }) => {
           variant="primary"
           gap={1}
           fontSize={{ base: 'sm', md: 'inherit' }}
-          onClick={type === 'User' ? addUserModal.onOpen : addItemModal.onOpen}
+          onClick={clickHandler}
         >
           <Icon as={FaPlus} /> Add {type}
         </Button>
         <AddUser isOpen={addUserModal.isOpen} onClose={addUserModal.onClose} />
         <AddItem isOpen={addItemModal.isOpen} onClose={addItemModal.onClose} />
+        <AddRecipe
+          isOpen={addRecipeModal.isOpen}
+          onClose={addRecipeModal.onClose}
+        />
       </Flex>
     </>
   )
