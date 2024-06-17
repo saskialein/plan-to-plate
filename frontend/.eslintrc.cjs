@@ -2,7 +2,7 @@ module.exports = {
   root: true,
   parserOptions: {
     ecmaVersion: 2020,
-    project: ['./frontend/tsconfig.json'],
+    project: ['./tsconfig.json'],
     sourceType: 'module',
   },
   env: { browser: true, es2020: true },
