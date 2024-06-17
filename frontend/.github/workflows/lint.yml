@@ -14,8 +14,6 @@ jobs:
         with:
           cache: 'npm'
           node-version-file: 'frontend/.nvmrc'
-      - name: Change working directory to frontend
-        run: cd frontend
 
       - name: Install node dependencies
         run: npm install
