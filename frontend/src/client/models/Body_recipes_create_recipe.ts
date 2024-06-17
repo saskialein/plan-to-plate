@@ -3,8 +3,9 @@
 /* tslint:disable */
 /* eslint-disable */
 
-export type QueryRequest = {
-    diets: Array<string>;
-    vegetables: Array<string>;
+export type Body_recipes_create_recipe = {
+    title: string;
+    url?: string;
+    file?: Blob;
 };
 

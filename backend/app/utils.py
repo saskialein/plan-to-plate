@@ -1,6 +1,7 @@
 import logging
+import requests
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
@@ -9,7 +10,7 @@ from jinja2 import Template
 from jose import JWTError, jwt
 
 from app.core.config import settings
-
+from b2sdk.v2 import InMemoryAccountInfo, B2Api
 
 @dataclass
 class EmailData:
@@ -114,3 +115,34 @@ def verify_password_reset_token(token: str) -> str | None:
         return str(decoded_token["sub"])
     except JWTError:
         return None
+
+info = InMemoryAccountInfo()
+b2_api = B2Api(info)
+b2_api.authorize_account("production", settings.B2_APPLICATION_KEY_ID, settings.B2_APPLICATION_KEY)
+bucket = b2_api.get_bucket_by_name(settings.B2_BUCKET_NAME)
+
+def upload_file_to_b2(file, file_name):
+    file_info = bucket.upload_bytes(file.read(), file_name)
+    print(f"File Info: {file_info}")
+
+    file_url = f"https://f002.backblazeb2.com/file/{settings.B2_BUCKET_NAME}/{file_name}"
+    return file_url
+
+
+# TODO: Figure out how to make authorized requests to B2
+def generate_signed_url(file_name: str, valid_duration_in_seconds: int = 3600) -> str:
+    # Get the upload authorization token
+    response = requests.post(
+        f"{settings.B2_API_URL}/b2api/v2/b2_get_download_authorization",
+        headers={"Authorization": b2_api.session.authorization_token},
+        json={
+            "bucketId": bucket.id_,
+            "fileNamePrefix": file_name,
+            "validDurationInSeconds": valid_duration_in_seconds,
+        },
+    )
+
+    response.raise_for_status()
+    download_authorization = response.json()["authorizationToken"]
+    download_url = f"{settings.B2_DOWNLOAD_URL}/file/{settings.B2_BUCKET_NAME}/{file_name}?Authorization={download_authorization}"
+    return download_url

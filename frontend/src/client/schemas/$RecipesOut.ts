@@ -2,13 +2,17 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export const $QueryResponse = {
+export const $RecipesOut = {
     properties: {
-        response: {
-            type: 'dictionary',
+        data: {
+            type: 'array',
             contains: {
-                type: 'MealPlan',
+                type: 'RecipeOut',
             },
+            isRequired: true,
+        },
+        count: {
+            type: 'number',
             isRequired: true,
         },
     },

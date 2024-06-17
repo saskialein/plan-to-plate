@@ -1,5 +1,5 @@
 from typing import Any
-
+import logging
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import col, delete, func, select
 
@@ -25,6 +25,7 @@ from app.models import (
 )
 from app.utils import generate_new_account_email, send_email
 
+logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
@@ -119,6 +120,13 @@ def read_user_me(session: SessionDep, current_user: CurrentUser) -> Any:
     """
     Get current user.
     """
+    if not current_user:
+        logger.error("Current user not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+    logger.debug(f"Fetching current user: {current_user.id}")
     return current_user
 
 

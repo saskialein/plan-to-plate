@@ -95,6 +95,13 @@ class Settings(BaseSettings):
     FIRST_SUPERUSER: str
     FIRST_SUPERUSER_PASSWORD: str
     USERS_OPEN_REGISTRATION: bool = False
+    
+    # Add Backblaze B2 settings
+    B2_APPLICATION_KEY_ID: str
+    B2_APPLICATION_KEY: str
+    B2_BUCKET_NAME: str
+    B2_DOWNLOAD_URL: str
+    B2_API_URL: str = "https://api.backblazeb2.com"
 
     def _check_default_secret(self, var_name: str, value: str | None) -> None:
         if value == "changethis":

@@ -1,5 +1,5 @@
 from sqlmodel import Field, Relationship, SQLModel
-
+from typing import List, Optional
 
 # Shared properties
 # TODO replace email str with EmailStr when sqlmodel supports it
@@ -45,6 +45,7 @@ class User(UserBase, table=True):
     id: int | None = Field(default=None, primary_key=True)
     hashed_password: str
     items: list["Item"] = Relationship(back_populates="owner")
+    recipes: List["Recipe"] = Relationship(back_populates="owner")
 
 
 # Properties to return via API, id is always required
@@ -111,3 +112,26 @@ class TokenPayload(SQLModel):
 class NewPassword(SQLModel):
     token: str
     new_password: str
+
+class RecipeBase(SQLModel):
+    title: str
+    url: Optional[str] = None
+    file_path: Optional[str] = None
+
+class RecipeCreate(RecipeBase):
+    pass
+
+class RecipeUpdate(RecipeBase):
+    title: str | None = None
+
+class Recipe(RecipeBase, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    owner_id: int | None = Field(default=None, foreign_key="user.id", nullable=False)
+    owner: User | None = Relationship(back_populates="recipes")
+class RecipeOut(RecipeBase):
+    id: int
+    owner_id: int
+
+class RecipesOut(SQLModel):
+    data: list[RecipeOut]
+    count: int

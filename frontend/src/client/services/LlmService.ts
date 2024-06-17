@@ -2,8 +2,8 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { QueryRequest } from '../models/QueryRequest';
-import type { QueryResponse } from '../models/QueryResponse';
+import type { MealPlanRequest } from '../models/MealPlanRequest';
+import type { MealPlanResponse } from '../models/MealPlanResponse';
 
 import type { CancelablePromise } from '../core/CancelablePromise';
 import { OpenAPI } from '../core/OpenAPI';
@@ -14,14 +14,14 @@ export class LlmService {
     /**
      * Generate meal plan
      * Generate a meal plan based on selected diets and available vegetables.
-     * @returns QueryResponse Successful Response
+     * @returns MealPlanResponse Successful Response
      * @throws ApiError
      */
     public static llmQuery({
         requestBody,
     }: {
-        requestBody: QueryRequest,
-    }): CancelablePromise<QueryResponse> {
+        requestBody: MealPlanRequest,
+    }): CancelablePromise<MealPlanResponse> {
         return __request(OpenAPI, {
             method: 'POST',
             url: '/api/v1/llm/llm-query',

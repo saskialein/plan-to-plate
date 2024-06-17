@@ -1,7 +1,7 @@
 import {
   Button,
   FormControl,
-  // FormErrorMessage,
+  FormErrorMessage,
   FormLabel,
   Input,
   Modal,
@@ -15,12 +15,22 @@ import {
 import { SubmitHandler, useForm } from 'react-hook-form'
 import { useMutation, useQueryClient } from 'react-query'
 
-import { ApiError, ItemCreate, ItemsService } from '../../client'
+import {
+  ApiError,
+  Body_recipes_create_recipe,
+  RecipesService,
+} from '../../client'
 import useCustomToast from '../../hooks/useCustomToast'
 
 interface AddRecipeProps {
   isOpen: boolean
   onClose: () => void
+}
+
+interface FormValues {
+  title: string
+  url?: string
+  file?: FileList
 }
 
 export function AddRecipe({ isOpen, onClose }: AddRecipeProps) {
@@ -31,18 +41,20 @@ export function AddRecipe({ isOpen, onClose }: AddRecipeProps) {
     handleSubmit,
     reset,
     formState: { errors, isSubmitting },
-    //TODO: Add form type
-  } = useForm<any>({
+  } = useForm<FormValues>({
     mode: 'onBlur',
     criteriaMode: 'all',
     defaultValues: {
       title: '',
-      file: '',
+      file: undefined,
+      url: '',
     },
   })
 
-  const addRecipe = async (data: ItemCreate) => {
-    await ItemsService.createRecipe({ requestBody: data })
+  const addRecipe = async (formData: Body_recipes_create_recipe) => {
+    await RecipesService.createRecipe({
+      formData,
+    })
   }
 
   const mutation = useMutation(addRecipe, {
@@ -60,8 +72,26 @@ export function AddRecipe({ isOpen, onClose }: AddRecipeProps) {
     },
   })
 
-  const onSubmit: SubmitHandler<ItemCreate> = (data) => {
-    mutation.mutate(data)
+  const onSubmit: SubmitHandler<FormValues> = (data) => {
+    if (!data.title) {
+      showToast('Title is required.', 'Please fill the title.', 'error')
+      return
+    }
+    if (!data.file && !data.url) {
+      showToast(
+        'File or URL is required.',
+        'Please fill the file or url.',
+        'error',
+      )
+      return
+    }
+
+    if (data.file && data.file.length > 0) {
+      //@ts-expect-error: FileList is not assignable to Blob
+      data.file = data.file[0]
+    }
+
+    mutation.mutate(data as Body_recipes_create_recipe)
   }
 
   return (
@@ -87,23 +117,34 @@ export function AddRecipe({ isOpen, onClose }: AddRecipeProps) {
                 placeholder="Title"
                 type="text"
               />
-              {/* {errors.title && (
+              {errors.title && (
                 <FormErrorMessage>{errors.title.message}</FormErrorMessage>
-              )} */}
+              )}
+            </FormControl>
+            <FormControl mt={4}>
+              <FormLabel htmlFor="url">URL</FormLabel>
+              <Input
+                id="url"
+                {...register('url')}
+                placeholder="Url"
+                type="text"
+              />
+              {errors.url && (
+                <FormErrorMessage>{errors.url.message}</FormErrorMessage>
+              )}
             </FormControl>
             <FormControl mt={4}>
               <FormLabel htmlFor="file">File</FormLabel>
               <Input
-                id="file"
-                {...register('file', {
-                  required: 'File is required.',
-                })}
+                id="file_path"
+                {...register('file')}
                 placeholder="File"
                 type="file"
+                accept=".txt, .pdf, .jpg"
               />
-              {/* {errors.file && (
+              {errors.file && (
                 <FormErrorMessage>{errors.file.message}</FormErrorMessage>
-              )} */}
+              )}
             </FormControl>
           </ModalBody>
 

@@ -2,7 +2,7 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export const $QueryRequest = {
+export const $MealPlanRequest = {
     properties: {
         diets: {
             type: 'array',

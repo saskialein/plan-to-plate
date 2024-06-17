@@ -3,9 +3,10 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import type { MealPlan } from './MealPlan';
+import type { RecipeOut } from './RecipeOut';
 
-export type QueryResponse = {
-    response: Record<string, MealPlan>;
+export type RecipesOut = {
+    data: Array<RecipeOut>;
+    count: number;
 };
 

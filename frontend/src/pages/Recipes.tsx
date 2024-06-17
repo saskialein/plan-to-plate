@@ -1,9 +1,26 @@
 import { Container, Flex, Heading, Spinner } from '@chakra-ui/react'
 import Navbar from '../components/Common/Navbar'
+import useCustomToast from '../hooks/useCustomToast'
+import { useQuery } from 'react-query'
+import { ApiError, RecipesService } from '../client'
+import { RecipeList } from '../components/Recipes/RecipeList'
 
 export function Recipes() {
-  const isLoading = false
-  const recipes = true
+  const showToast = useCustomToast()
+
+  const {
+    data: recipes,
+    isLoading,
+    isError,
+    error,
+  } = useQuery('recipes', () => RecipesService.readRecipes({}))
+
+  if (isError) {
+    const errDetail = (error as ApiError).body?.detail
+    showToast('Something went wrong.', `${errDetail}`, 'error')
+  }
+
+  console.log(recipes)
   return (
     <>
       {isLoading ? (
@@ -22,6 +39,7 @@ export function Recipes() {
               Recipes
             </Heading>
             <Navbar type={'Recipe'} />
+            <RecipeList recipes={recipes} />
           </Container>
         )
       )}

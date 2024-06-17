@@ -1,9 +1,9 @@
-from typing import Any
+from typing import Any, List, Optional
 
 from sqlmodel import Session, select
 
 from app.core.security import get_password_hash, verify_password
-from app.models import Item, ItemCreate, User, UserCreate, UserUpdate
+from app.models import Item, ItemCreate, User, UserCreate, UserUpdate, RecipeCreate, Recipe, RecipeUpdate
 
 
 def create_user(*, session: Session, user_create: UserCreate) -> User:
@@ -51,3 +51,27 @@ def create_item(*, session: Session, item_in: ItemCreate, owner_id: int) -> Item
     session.commit()
     session.refresh(db_item)
     return db_item
+
+def create_recipe(db: Session, recipe_in: RecipeCreate, user_id: int) -> Recipe:
+    db_recipe = Recipe(**recipe_in.dict(), owner_id=user_id)
+    db.add(db_recipe)
+    db.commit()
+    db.refresh(db_recipe)
+    return db_recipe
+
+def get_recipe(db: Session, recipe_id: int) -> Optional[Recipe]:
+    return db.query(Recipe).filter(Recipe.id == recipe_id).first()
+
+def get_recipes(db: Session, user_id: int, skip: int = 0, limit: int = 100) -> List[Recipe]:
+    return db.query(Recipe).filter(Recipe.owner_id == user_id).offset(skip).limit(limit).all()
+
+def update_recipe(db: Session, db_recipe: Recipe, recipe_in: RecipeUpdate) -> Recipe:
+    db_recipe.update(recipe_in.dict(exclude_unset=True))
+    db.add(db_recipe)
+    db.commit()
+    db.refresh(db_recipe)
+    return db_recipe
+
+def delete_recipe(db: Session, db_recipe: Recipe) -> None:
+    db.delete(db_recipe)
+    db.commit()
