@@ -1,6 +1,7 @@
 import { useQuery } from 'react-query'
 import useCustomToast from '../hooks/useCustomToast'
-import { ApiError, ItemsService } from '../client'
+import type { ApiError } from '../client'
+import { ItemsService } from '../client'
 import {
   Container,
   Flex,

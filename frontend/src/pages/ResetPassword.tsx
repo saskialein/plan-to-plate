@@ -1,5 +1,7 @@
-import { SubmitHandler, useForm } from 'react-hook-form'
-import { ApiError, LoginService, NewPassword } from '../client'
+import type { SubmitHandler} from 'react-hook-form';
+import { useForm } from 'react-hook-form'
+import type { ApiError, NewPassword } from '../client';
+import { LoginService } from '../client'
 import useCustomToast from '../hooks/useCustomToast'
 import { useNavigate } from '@tanstack/react-router'
 import { useMutation } from 'react-query'
@@ -14,9 +16,9 @@ import {
   Text,
 } from '@chakra-ui/react'
 
-interface NewPasswordForm extends NewPassword {
+type NewPasswordForm = {
   confirm_password: string
-}
+} & NewPassword
 
 export function ResetPassword() {
   const {

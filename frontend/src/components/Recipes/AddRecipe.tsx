@@ -12,22 +12,24 @@ import {
   ModalHeader,
   ModalOverlay,
 } from '@chakra-ui/react'
-import { SubmitHandler, useForm } from 'react-hook-form'
+import type { SubmitHandler} from 'react-hook-form';
+import { useForm } from 'react-hook-form'
 import { useMutation, useQueryClient } from 'react-query'
 
-import {
+import type {
   ApiError,
-  Body_recipes_create_recipe,
+  Body_recipes_create_recipe} from '../../client';
+import {
   RecipesService,
 } from '../../client'
 import useCustomToast from '../../hooks/useCustomToast'
 
-interface AddRecipeProps {
+type AddRecipeProps = {
   isOpen: boolean
   onClose: () => void
 }
 
-interface FormValues {
+type FormValues = {
   title: string
   url?: string
   file?: FileList

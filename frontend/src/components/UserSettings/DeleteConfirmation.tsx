@@ -11,11 +11,12 @@ import {
 import { useForm } from 'react-hook-form'
 import { useMutation, useQueryClient } from 'react-query'
 
-import { ApiError, UserOut, UsersService } from '../../client'
+import type { ApiError, UserOut } from '../../client'
+import { UsersService } from '../../client'
 import useAuth from '../../hooks/useAuth'
 import useCustomToast from '../../hooks/useCustomToast'
 
-interface DeleteProps {
+type DeleteProps = {
   isOpen: boolean
   onClose: () => void
 }
@@ -74,8 +75,8 @@ const DeleteConfirmation: React.FC<DeleteProps> = ({ isOpen, onClose }) => {
             <AlertDialogBody>
               All your account data will be{' '}
               <strong>permanently deleted.</strong> If you are sure, please
-              click <strong>"Confirm"</strong> to proceed. This action cannot be
-              undone.
+              click <strong>&quot;Confirm&quot;</strong> to proceed. This action
+              cannot be undone.
             </AlertDialogBody>
 
             <AlertDialogFooter gap={3}>

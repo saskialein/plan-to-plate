@@ -1,7 +1,9 @@
 import { Box, VStack } from '@chakra-ui/react'
 import { useMutation } from 'react-query'
-import { ApiError, LlmService, MealPlan } from '../../client'
-import { SyntheticEvent, useState } from 'react'
+import type { ApiError, MealPlan } from '../../client';
+import { LlmService } from '../../client'
+import type { SyntheticEvent} from 'react';
+import { useState } from 'react'
 
 import useCustomToast from '../../hooks/useCustomToast'
 import { MealPlanTable } from './MealPlanTable'

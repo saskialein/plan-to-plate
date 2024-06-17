@@ -5,7 +5,7 @@ import { PiListHeartBold } from 'react-icons/pi'
 import { Link } from '@tanstack/react-router'
 import { useQueryClient } from 'react-query'
 
-import { UserOut } from '../../client'
+import type { UserOut } from '../../client'
 
 const items = [
   { icon: FiHome, title: 'Dashboard', path: '/' },
@@ -14,7 +14,7 @@ const items = [
   { icon: FiSettings, title: 'User Settings', path: '/settings' },
 ]
 
-interface SidebarItemsProps {
+type SidebarItemsProps = {
   onClose?: () => void
 }
 

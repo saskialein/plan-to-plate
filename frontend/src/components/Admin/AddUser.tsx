@@ -15,21 +15,23 @@ import {
   ModalHeader,
   ModalOverlay,
 } from '@chakra-ui/react'
-import { SubmitHandler, useForm } from 'react-hook-form'
+import type { SubmitHandler} from 'react-hook-form';
+import { useForm } from 'react-hook-form'
 import { useMutation, useQueryClient } from 'react-query'
 
-import { UserCreate, UsersService } from '../../client'
-import { ApiError } from '../../client/core/ApiError'
+import type { UserCreate} from '../../client';
+import { UsersService } from '../../client'
+import type { ApiError } from '../../client/core/ApiError'
 import useCustomToast from '../../hooks/useCustomToast'
 
-interface AddUserProps {
+type AddUserProps = {
   isOpen: boolean
   onClose: () => void
 }
 
-interface UserCreateForm extends UserCreate {
+type UserCreateForm = {
   confirm_password: string
-}
+} & UserCreate
 
 const AddUser: React.FC<AddUserProps> = ({ isOpen, onClose }) => {
   const queryClient = useQueryClient()

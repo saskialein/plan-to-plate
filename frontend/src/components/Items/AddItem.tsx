@@ -13,13 +13,15 @@ import {
   ModalHeader,
   ModalOverlay,
 } from '@chakra-ui/react'
-import { SubmitHandler, useForm } from 'react-hook-form'
+import type { SubmitHandler} from 'react-hook-form';
+import { useForm } from 'react-hook-form'
 import { useMutation, useQueryClient } from 'react-query'
 
-import { ApiError, ItemCreate, ItemsService } from '../../client'
+import type { ApiError, ItemCreate} from '../../client';
+import { ItemsService } from '../../client'
 import useCustomToast from '../../hooks/useCustomToast'
 
-interface AddItemProps {
+type AddItemProps = {
   isOpen: boolean
   onClose: () => void
 }

@@ -6,7 +6,7 @@ import AddUser from '../Admin/AddUser'
 import AddItem from '../Items/AddItem'
 import { AddRecipe } from '../Recipes/AddRecipe'
 
-interface NavbarProps {
+type NavbarProps = {
   type: string
 }
 

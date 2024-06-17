@@ -1,7 +1,7 @@
 import { Table, Tbody, Td, Th, Thead, Tr } from '@chakra-ui/react'
-import { MealPlan } from '../../client'
+import type { MealPlan } from '../../client'
 
-interface MealPlanTableProps {
+type MealPlanTableProps = {
   plan: Record<string, MealPlan>
 }
 

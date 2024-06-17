@@ -1,6 +1,7 @@
 import { useQuery, useQueryClient } from 'react-query'
 import useCustomToast from '../hooks/useCustomToast'
-import { ApiError, UserOut, UsersService } from '../client'
+import type { ApiError, UserOut} from '../client';
+import { UsersService } from '../client'
 import {
   Badge,
   Box,

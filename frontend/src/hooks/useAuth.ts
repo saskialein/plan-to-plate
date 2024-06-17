@@ -2,12 +2,11 @@ import { useQuery } from 'react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { jwtDecode } from 'jwt-decode'
 
-import {
+import type {
   Body_login_login_access_token as AccessToken,
-  LoginService,
   UserOut,
-  UsersService,
 } from '../client'
+import { LoginService, UsersService } from '../client'
 
 const isTokenExpired = (token: string) => {
   if (!token) return true
@@ -19,7 +18,6 @@ const isTokenExpired = (token: string) => {
 
 const isLoggedIn = () => {
   const token = localStorage.getItem('access_token')
-  token && console.log(isTokenExpired(token))
   return token !== null && !isTokenExpired(token)
 }
 

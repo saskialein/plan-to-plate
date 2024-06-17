@@ -26,7 +26,7 @@ type MaybeTagProps<P> = MaybeFunc<[tag: string, index?: number], P>
 
 type Func<A extends unknown[], R> = (...args: A) => R
 export type MaybeFunc<A extends unknown[], R> = R | Func<A, R>
-export function maybeCall<A extends unknown[], R>(
+function maybeCall<A extends unknown[], R>(
   maybeFunc: MaybeFunc<A, R>,
   ...args: A
 ) {

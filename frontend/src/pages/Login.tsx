@@ -14,8 +14,9 @@ import {
 } from '@chakra-ui/react'
 import useAuth from '../hooks/useAuth'
 import { useState } from 'react'
-import { SubmitHandler, useForm } from 'react-hook-form'
-import {
+import type { SubmitHandler} from 'react-hook-form';
+import { useForm } from 'react-hook-form'
+import type {
   ApiError,
   Body_login_login_access_token as AccessToken,
 } from '../client'

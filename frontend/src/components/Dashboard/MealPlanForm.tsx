@@ -14,7 +14,8 @@ import {
 import TagInput from '../Common/TagInput'
 import { PiFarmLight } from 'react-icons/pi'
 import { GiHotMeal } from 'react-icons/gi'
-import { SyntheticEvent, useCallback } from 'react'
+import type { SyntheticEvent} from 'react';
+import { useCallback } from 'react'
 
 const diets = [
   'Paleo',
@@ -26,7 +27,7 @@ const diets = [
   'Whole30',
 ]
 
-interface MealPlanFormProps {
+type MealPlanFormProps = {
   selectedDiets: string[]
   setSelectedDiets: (diets: string[]) => void
   vegetables: string[]

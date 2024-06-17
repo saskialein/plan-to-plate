@@ -1,5 +1,5 @@
 import { useQueryClient } from 'react-query'
-import { UserOut } from '../client'
+import type { UserOut } from '../client'
 import {
   Container,
   Heading,

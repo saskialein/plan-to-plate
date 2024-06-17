@@ -6,9 +6,7 @@ export function Dashboard() {
     <>
       <Container maxW="full">
         <Stack pt={12} spacing={4}>
-          {/* <Box pt={12}> */}
-          <Text fontSize="2xl">Let's plan your meals for the week!</Text>
-          {/* </Box> */}
+          <Text fontSize="2xl">Let&apos;s plan your meals for the week!</Text>
           <MealPlanGenerator />
         </Stack>
       </Container>

@@ -1,5 +1,5 @@
 import { Stack } from '@chakra-ui/react'
-import { RecipesOut } from '../../client'
+import type { RecipesOut } from '../../client'
 import { RecipeCard } from './RecipeCard'
 
 export function RecipeList({ recipes }: { recipes: RecipesOut }) {

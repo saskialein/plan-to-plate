@@ -14,7 +14,7 @@ import { useMutation, useQueryClient } from 'react-query'
 import { ItemsService, UsersService } from '../../client'
 import useCustomToast from '../../hooks/useCustomToast'
 
-interface DeleteProps {
+type DeleteProps = {
   type: string
   id: number
   isOpen: boolean

@@ -10,10 +10,11 @@ import {
   Stack,
   Text,
 } from '@chakra-ui/react'
-import { RecipeOut } from '../../client'
+import type { RecipeOut } from '../../client'
 import { useEffect, useState } from 'react'
+import type {
+  OpenGraphData} from '../../api/apiUtils';
 import {
-  OpenGraphData,
   fetchOpenGraphData,
   fetchSignedUrl,
 } from '../../api/apiUtils'

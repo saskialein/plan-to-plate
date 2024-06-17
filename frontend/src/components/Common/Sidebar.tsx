@@ -18,7 +18,7 @@ import { FiLogOut, FiMenu } from 'react-icons/fi'
 import { useQueryClient } from 'react-query'
 
 import Logo from '../../assets/images/plantoplate-logo.png'
-import { UserOut } from '../../client'
+import type { UserOut } from '../../client'
 import useAuth from '../../hooks/useAuth'
 import SidebarItems from './SidebarItems'
 
