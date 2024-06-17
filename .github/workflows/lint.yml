@@ -15,17 +15,14 @@ jobs:
           cache: "npm"
           node-version-file: "frontend/.nvmrc"
 
-      - name: Change working directory to frontend
-        run: cd frontend
-
       - name: Install node dependencies
         run: npm install
-        working-directory: frontend
+        working-directory: ./frontend
 
       - name: Run type checker
         run: npm run tsc
-        working-directory: frontend
+        working-directory: ./frontend
 
       - name: Run linter
         run: npm run lint
-        working-directory: frontend
+        working-directory: ./frontend
