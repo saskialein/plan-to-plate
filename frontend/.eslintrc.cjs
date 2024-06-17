@@ -2,7 +2,7 @@ module.exports = {
   root: true,
   parserOptions: {
     ecmaVersion: 2020,
-    project: ['tsconfig.json'],
+    project: ['./frontend/tsconfig.json'],
     sourceType: 'module',
   },
   env: { browser: true, es2020: true },
@@ -10,6 +10,7 @@ module.exports = {
     'eslint:recommended',
     'plugin:@typescript-eslint/recommended',
     'plugin:react-hooks/recommended',
+    'plugin:react/recommended',
     'prettier',
   ],
   ignorePatterns: ['dist', '.eslintrc.cjs'],
@@ -23,7 +24,6 @@ module.exports = {
       { allowConstantExport: true },
     ],
     'react/react-in-jsx-scope': 'off',
-    'react/function-component-definition': 'error',
     'react/destructuring-assignment': [
       'error',
       'always',
