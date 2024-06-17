@@ -2,7 +2,8 @@ module.exports = {
   root: true,
   parserOptions: {
     ecmaVersion: 2020,
-    project: ['./tsconfig.json'],
+    project: ['tsconfig.json'],
+    tsconfigRootDir: __dirname,
     sourceType: 'module',
   },
   env: { browser: true, es2020: true },
@@ -17,7 +18,7 @@ module.exports = {
   parser: '@typescript-eslint/parser',
   plugins: ['react-refresh'],
   rules: {
-    'no-console': 'warn',
+    'no-console': ['warn', { allow: ['error'] }],
     'no-debugger': 'warn',
     'react-refresh/only-export-components': [
       'warn',
