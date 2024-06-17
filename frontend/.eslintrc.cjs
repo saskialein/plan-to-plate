@@ -1,5 +1,10 @@
 module.exports = {
   root: true,
+  parserOptions: {
+    ecmaVersion: 2020,
+    project: ['tsconfig.json'],
+    sourceType: 'module',
+  },
   env: { browser: true, es2020: true },
   extends: [
     'eslint:recommended',
