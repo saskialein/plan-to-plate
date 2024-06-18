@@ -30,6 +30,8 @@ langchain = "^0.2.3"
 langchain-openai = "^0.1.8"
 langchain-groq = "^0.1.5"
 b2sdk = "^2.3.0"
+beautifulsoup4 = "^4.12.3"
+aiohttp = "^3.9.5"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.4.3"
