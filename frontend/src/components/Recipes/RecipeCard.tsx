@@ -12,24 +12,30 @@ import {
 } from '@chakra-ui/react'
 import type { RecipeOut } from '../../client'
 import { useEffect, useState } from 'react'
-import type {
-  OpenGraphData} from '../../api/apiUtils';
-import {
-  fetchOpenGraphData,
-  fetchSignedUrl,
-} from '../../api/apiUtils'
+import type { OpenGraphData } from '../../api/apiUtils'
+import { fetchOpenGraphData, fetchSignedUrl } from '../../api/apiUtils'
 
 export function RecipeCard({ recipe }: { recipe: RecipeOut }) {
-  const [openGraphData, setOpenGraphData] = useState<OpenGraphData | null>(null)
+  const [openGraphData, setOpenGraphData] =
+    useState<Partial<OpenGraphData> | null>(null)
   const [fileUrl, setFileUrl] = useState<string | null>(null)
+
+  function getFileName(url?: string | null) {
+    if (!url) return null
+    const urlObj = new URL(url)
+    const pathname = urlObj.pathname
+    return pathname.substring(pathname.lastIndexOf('/') + 1)
+  }
+
+  const fileName = getFileName(recipe.file_path)
 
   useEffect(() => {
     const fetchData = async () => {
       if (recipe.url) {
         const data = await fetchOpenGraphData(recipe.url)
         setOpenGraphData(data)
-      } else if (recipe.file_path) {
-        const url = await fetchSignedUrl(recipe.file_path)
+      } else if (fileName) {
+        const url = await fetchSignedUrl(fileName)
         setFileUrl(url)
       }
     }
@@ -42,8 +48,8 @@ export function RecipeCard({ recipe }: { recipe: RecipeOut }) {
       <CardBody>
         {fileUrl ? (
           <Image src={fileUrl} alt={recipe.title} />
-        ) : openGraphData?.image ? (
-          <Image src={openGraphData.image} alt={openGraphData.title} />
+        ) : openGraphData?.['og:image'] ? (
+          <Image src={openGraphData['og:image']} alt={openGraphData.title} />
         ) : null}
         <Stack mt="6" spacing="3">
           <Heading size="md">{openGraphData?.title || recipe.title}</Heading>

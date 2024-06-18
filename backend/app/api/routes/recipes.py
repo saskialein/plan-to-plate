@@ -5,6 +5,8 @@ from app.api.deps import CurrentUser, SessionDep
 from app.models import Recipe, RecipeCreate, RecipeUpdate, RecipeOut, RecipesOut, User
 from app import crud
 from app.utils import upload_file_to_b2, generate_signed_url
+from bs4 import BeautifulSoup
+import requests
 
 router = APIRouter()
 
@@ -97,16 +99,56 @@ def delete_recipe(
     crud.delete_recipe(db=session, db_recipe=recipe)
     return {"message": "Recipe deleted successfully"}
 
-class FileRequest(BaseModel):
-    file_name: str
+# class FileRequest(BaseModel):
+#     file_name: str
 
-@router.post("/generate-signed-url")    
-def generate_signed_url_endpoint(*, file_request: FileRequest, current_user: CurrentUser):
-    if not current_user:
-        raise HTTPException(status_code=401, detail="Not authenticated")
+# @router.post("/generate-signed-url")
+# def generate_signed_url_endpoint(file_request: FileRequest, current_user: CurrentUser):
+#     print(file_request.file_name)
+#     if not current_user:
+#         raise HTTPException(status_code=401, detail="Not authenticated")
 
+#     try:
+#         signed_url = generate_signed_url(file_request.file_name)
+#         return {"signed_url": signed_url}
+#     except Exception as e:
+#         raise HTTPException(status_code=400, detail=str(e))
+
+async def fetch_html_content(url: str) -> str:
+  response = requests.get(url)
+  if response.status_code == 200:
+    return response.text
+  else:
+    raise Exception(f"Failed to fetch HTML content from {url}")
+
+        
+def parse_open_graph_data(html: str) -> dict:
+    soup = BeautifulSoup(html, 'html.parser')
+    meta_tags = soup.find_all('meta')
+
+    metadata = {}
+
+    for tag in meta_tags:
+        if 'name' in tag.attrs:
+            name = tag.attrs['name']
+            content = tag.attrs.get('content', '')
+            metadata[name] = content
+        elif 'property' in tag.attrs:
+            property = tag.attrs['property']
+            content = tag.attrs.get('content', '')
+            metadata[property] = content
+    
+    return metadata
+
+
+class URLRequest(BaseModel):
+    url: str
+    
+@router.post("/fetch-opengraph")
+async def fetch_opengraph(data: URLRequest):
     try:
-        signed_url = generate_signed_url(file_request.file_name)
-        return {"signed_url": signed_url}
+        html_content = await fetch_html_content(data.url)
+        og_data = parse_open_graph_data(html_content)
+        return og_data
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
