@@ -12,16 +12,12 @@ import {
   ModalHeader,
   ModalOverlay,
 } from '@chakra-ui/react'
-import type { SubmitHandler} from 'react-hook-form';
+import type { SubmitHandler } from 'react-hook-form'
 import { useForm } from 'react-hook-form'
 import { useMutation, useQueryClient } from 'react-query'
 
-import type {
-  ApiError,
-  Body_recipes_create_recipe} from '../../client';
-import {
-  RecipesService,
-} from '../../client'
+import type { ApiError, Body_recipes_create_recipe } from '../../client'
+import { RecipesService } from '../../client'
 import useCustomToast from '../../hooks/useCustomToast'
 
 type AddRecipeProps = {
@@ -32,7 +28,7 @@ type AddRecipeProps = {
 type FormValues = {
   title: string
   url?: string
-  file?: FileList
+  file?: FileList | null
 }
 
 export function AddRecipe({ isOpen, onClose }: AddRecipeProps) {
@@ -42,13 +38,14 @@ export function AddRecipe({ isOpen, onClose }: AddRecipeProps) {
     register,
     handleSubmit,
     reset,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({
     mode: 'onBlur',
     criteriaMode: 'all',
     defaultValues: {
       title: '',
-      file: undefined,
+      file: null,
       url: '',
     },
   })
@@ -91,9 +88,20 @@ export function AddRecipe({ isOpen, onClose }: AddRecipeProps) {
     if (data.file && data.file.length > 0) {
       //@ts-expect-error: FileList is not assignable to Blob
       data.file = data.file[0]
+    } else {
+      data.file = null
     }
 
     mutation.mutate(data as Body_recipes_create_recipe)
+  }
+
+  const toTitleCase = (str: string) => {
+    return str.replace(/\w\S*/g, function (txt) {
+      if (txt.toLowerCase() === 'and') {
+        return 'and'
+      }
+      return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
+    })
   }
 
   return (
@@ -115,6 +123,10 @@ export function AddRecipe({ isOpen, onClose }: AddRecipeProps) {
                 id="title"
                 {...register('title', {
                   required: 'Title is required.',
+                  onChange: (e) => {
+                    const formattedTitle = toTitleCase(e.target.value)
+                    setValue('title', formattedTitle, { shouldValidate: true })
+                  },
                 })}
                 placeholder="Title"
                 type="text"

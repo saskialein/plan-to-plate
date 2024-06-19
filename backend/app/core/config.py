@@ -102,6 +102,7 @@ class Settings(BaseSettings):
     B2_BUCKET_NAME: str
     B2_DOWNLOAD_URL: str
     B2_API_URL: str = "https://api.backblazeb2.com"
+    B2_BUCKET_ID: str
 
     def _check_default_secret(self, var_name: str, value: str | None) -> None:
         if value == "changethis":

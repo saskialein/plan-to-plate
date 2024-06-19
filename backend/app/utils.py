@@ -11,6 +11,8 @@ from jose import JWTError, jwt
 
 from app.core.config import settings
 from b2sdk.v2 import InMemoryAccountInfo, B2Api
+from bs4 import BeautifulSoup
+import requests
 
 @dataclass
 class EmailData:
@@ -125,24 +127,71 @@ def upload_file_to_b2(file, file_name):
     file_info = bucket.upload_bytes(file.read(), file_name)
     print(f"File Info: {file_info}")
 
-    file_url = f"https://f002.backblazeb2.com/file/{settings.B2_BUCKET_NAME}/{file_name}"
+    file_url = f"https://f002.backblazeb2.com/file/{settings.B2_BUCKET_NAME}/recipes/{file_name}"
     return file_url
 
+def delete_file_from_b2(file_path: str):
+    file_name = file_path.split('/')[-1]
+    file_versions = bucket.list_file_versions(file_name)
 
-# TODO: Figure out how to make authorized requests to B2
-def generate_signed_url(file_name: str, valid_duration_in_seconds: int = 3600) -> str:
-    # Get the upload authorization token
-    response = requests.post(
-        f"{settings.B2_API_URL}/b2api/v2/b2_get_download_authorization",
-        headers={"Authorization": b2_api.session.authorization_token},
-        json={
-            "bucketId": bucket.id_,
-            "fileNamePrefix": file_name,
-            "validDurationInSeconds": valid_duration_in_seconds,
-        },
+    for file_version in file_versions:
+        bucket.delete_file_version(file_version.id_, file_version.file_name)
+
+
+def get_download_authorization(valid_duration_in_seconds: int = 3600):
+    """
+    Generates a download authorization token for a specific file in a Backblaze B2 private bucket.
+    """
+    # Authenticate with B2
+    auth_response = requests.get(
+        'https://api.backblazeb2.com/b2api/v2/b2_authorize_account',
+        auth=(settings.B2_APPLICATION_KEY_ID, settings.B2_APPLICATION_KEY)
     )
+    auth_data = auth_response.json()
+    
+    api_url = auth_data['apiUrl']
+    authorization_token = auth_data['authorizationToken']
 
-    response.raise_for_status()
-    download_authorization = response.json()["authorizationToken"]
-    download_url = f"{settings.B2_DOWNLOAD_URL}/file/{settings.B2_BUCKET_NAME}/{file_name}?Authorization={download_authorization}"
-    return download_url
+    # Get download authorization
+    download_auth_response = requests.post(
+        f'{api_url}/b2api/v2/b2_get_download_authorization',
+        headers={'Authorization': authorization_token},
+        json={
+            'bucketId': settings.B2_BUCKET_ID,
+            'fileNamePrefix': "recipes/",
+            'validDurationInSeconds': valid_duration_in_seconds
+        }
+    )
+    download_auth_data = download_auth_response.json()
+    print(f"Download Auth Data: {download_auth_data}")
+    
+    if 'authorizationToken' not in download_auth_data:
+        raise Exception('Failed to get download authorization', download_auth_data)
+
+    return download_auth_data['authorizationToken']
+
+async def fetch_html_content(url: str) -> str:
+  response = requests.get(url)
+  if response.status_code == 200:
+    return response.text
+  else:
+    raise Exception(f"Failed to fetch HTML content from {url}")
+
+        
+def parse_open_graph_data(html: str) -> dict:
+    soup = BeautifulSoup(html, 'html.parser')
+    meta_tags = soup.find_all('meta')
+
+    metadata = {}
+
+    for tag in meta_tags:
+        if 'name' in tag.attrs:
+            name = tag.attrs['name']
+            content = tag.attrs.get('content', '')
+            metadata[name] = content
+        elif 'property' in tag.attrs:
+            property = tag.attrs['property']
+            content = tag.attrs.get('content', '')
+            metadata[property] = content
+    
+    return metadata

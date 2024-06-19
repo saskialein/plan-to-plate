@@ -35,7 +35,7 @@ export const fetchOpenGraphData = async (
     )
     const data = response.data
     return {
-      title: data.title || 'No title available',
+      title: data.title || data['og:title'] || 'No title available',
       description: data.description || 'No description available',
       'og:image': data['og:image'] || 'No image available',
     }
@@ -47,11 +47,9 @@ export const fetchOpenGraphData = async (
 
 export const fetchSignedUrl = async (fileName: string) => {
   try {
-    const token = localStorage.getItem('token') // Assuming the token is stored in localStorage
     const response = await api.post(
       'http://localhost/api/v1/recipes/generate-signed-url',
       { file_name: fileName },
-      { headers: { Authorization: `Bearer ${token}` } },
     )
 
     return response.data.signed_url
@@ -59,20 +57,3 @@ export const fetchSignedUrl = async (fileName: string) => {
     console.error('Error fetching signed URL:', error)
   }
 }
-
-// export const fetchSignedUrl = async (
-//   file_path: string,
-// ): Promise<string | null> => {
-//   try {
-//     const response = await api.post(
-//       'http://localhost/api/v1/recipes/generate-signed-url',
-//       {
-//         file_name: file_path,
-//       },
-//     )
-//     return response.data.signed_url
-//   } catch (error) {
-//     console.error('Error fetching signed URL:', error)
-//     return null
-//   }
-// }

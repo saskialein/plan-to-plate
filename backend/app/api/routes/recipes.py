@@ -1,12 +1,10 @@
-from typing import Any, List
+from typing import Any
 from pydantic import BaseModel
 from fastapi import APIRouter, HTTPException, UploadFile, File, Form
 from app.api.deps import CurrentUser, SessionDep
-from app.models import Recipe, RecipeCreate, RecipeUpdate, RecipeOut, RecipesOut, User
+from app.models import RecipeCreate, RecipeUpdate, RecipeOut, RecipesOut, Message
 from app import crud
-from app.utils import upload_file_to_b2, generate_signed_url
-from bs4 import BeautifulSoup
-import requests
+from app.utils import upload_file_to_b2, get_download_authorization, fetch_html_content, parse_open_graph_data
 
 router = APIRouter()
 
@@ -22,6 +20,9 @@ def create_recipe(
     """
     Create new recipe.
     """
+    if not url and not file:
+        raise HTTPException(status_code=400, detail="Either 'url' or 'file' must be provided.")
+    
     file_url = None
     if file:
         # Upload the file to the bucket
@@ -81,13 +82,13 @@ def update_recipe(
     recipe = crud.update_recipe(db=session, db_recipe=recipe, recipe_in=recipe_in)
     return recipe
 
-@router.delete("/{recipe_id}", response_model=RecipeOut)
+@router.delete("/{recipe_id}")
 def delete_recipe(
     *,
     session: SessionDep,
     recipe_id: int,
     current_user: CurrentUser,
-) -> Any:
+) -> Message:
     """
     Delete a recipe.
     """
@@ -97,48 +98,22 @@ def delete_recipe(
     if recipe.owner_id != current_user.id:
         raise HTTPException(status_code=403, detail="Not enough permissions")
     crud.delete_recipe(db=session, db_recipe=recipe)
-    return {"message": "Recipe deleted successfully"}
+    return Message(message="Recipe deleted successfully")
 
-# class FileRequest(BaseModel):
-#     file_name: str
+class FileRequest(BaseModel):
+    file_name: str
 
-# @router.post("/generate-signed-url")
-# def generate_signed_url_endpoint(file_request: FileRequest, current_user: CurrentUser):
-#     print(file_request.file_name)
-#     if not current_user:
-#         raise HTTPException(status_code=401, detail="Not authenticated")
+@router.post("/generate-signed-url")
+def generate_signed_url_endpoint(file_request: FileRequest, current_user: CurrentUser):
+    if not current_user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
 
-#     try:
-#         signed_url = generate_signed_url(file_request.file_name)
-#         return {"signed_url": signed_url}
-#     except Exception as e:
-#         raise HTTPException(status_code=400, detail=str(e))
-
-async def fetch_html_content(url: str) -> str:
-  response = requests.get(url)
-  if response.status_code == 200:
-    return response.text
-  else:
-    raise Exception(f"Failed to fetch HTML content from {url}")
-
-        
-def parse_open_graph_data(html: str) -> dict:
-    soup = BeautifulSoup(html, 'html.parser')
-    meta_tags = soup.find_all('meta')
-
-    metadata = {}
-
-    for tag in meta_tags:
-        if 'name' in tag.attrs:
-            name = tag.attrs['name']
-            content = tag.attrs.get('content', '')
-            metadata[name] = content
-        elif 'property' in tag.attrs:
-            property = tag.attrs['property']
-            content = tag.attrs.get('content', '')
-            metadata[property] = content
-    
-    return metadata
+    try:
+        auth_token = get_download_authorization()
+        signed_url = f"https://f002.backblazeb2.com/file/plan-to-plate/recipes/{file_request.file_name}?Authorization={auth_token}"
+        return {"signed_url": signed_url}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 
 class URLRequest(BaseModel):

@@ -4,7 +4,7 @@ from sqlmodel import Session, select
 
 from app.core.security import get_password_hash, verify_password
 from app.models import Item, ItemCreate, User, UserCreate, UserUpdate, RecipeCreate, Recipe, RecipeUpdate
-
+from app.utils import delete_file_from_b2
 
 def create_user(*, session: Session, user_create: UserCreate) -> User:
     db_obj = User.model_validate(
@@ -73,5 +73,7 @@ def update_recipe(db: Session, db_recipe: Recipe, recipe_in: RecipeUpdate) -> Re
     return db_recipe
 
 def delete_recipe(db: Session, db_recipe: Recipe) -> None:
+    if db_recipe.file_path:
+        delete_file_from_b2(db_recipe.file_path)
     db.delete(db_recipe)
     db.commit()
