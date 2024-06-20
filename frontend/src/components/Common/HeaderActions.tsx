@@ -52,7 +52,7 @@ export const HeaderActions = ({ type, onSearch }: HeaderActionsProps) => {
           </InputLeftElement>
           <Input
             type="text"
-            placeholder="Search"
+            placeholder="Search by title"
             fontSize={{ base: 'sm', md: 'inherit' }}
             borderRadius="8px"
             onChange={handleSearch}

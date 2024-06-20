@@ -1,13 +1,17 @@
-import { SimpleGrid } from '@chakra-ui/react'
+import { Box, SimpleGrid, Text } from '@chakra-ui/react'
 import type { RecipesOut } from '../../client'
 import { RecipeCard } from './RecipeCard'
 
-export function RecipeList({ recipes }: { recipes: RecipesOut }) {
+export function RecipeList({ recipes }: { recipes?: RecipesOut['data'] }) {
   return (
     <SimpleGrid minChildWidth="300px" spacing={4}>
-      {recipes.data.map((recipe) => (
-        <RecipeCard key={recipe.id} recipe={recipe} />
-      ))}
+      {recipes?.length === 0 ? (
+        <Box width="full" textAlign="center">
+          <Text fontSize="xl">No recipes found</Text>
+        </Box>
+      ) : (
+        recipes?.map((recipe) => <RecipeCard key={recipe.id} recipe={recipe} />)
+      )}
     </SimpleGrid>
   )
 }

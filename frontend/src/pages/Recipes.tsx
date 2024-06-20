@@ -5,21 +5,31 @@ import { useQuery } from 'react-query'
 import type { ApiError } from '../client'
 import { RecipesService } from '../client'
 import { RecipeList } from '../components/Recipes/RecipeList'
+import { useState } from 'react'
 
 export function Recipes() {
   const showToast = useCustomToast()
+  const [searchQuery, setSearchQuery] = useState('')
 
   const {
     data: recipes,
     isLoading,
     isError,
     error,
-  } = useQuery('recipes', () => RecipesService.readRecipes({}))
+  } = useQuery('recipes', () => RecipesService.readRecipes({ limit: 50 }))
 
   if (isError) {
     const errDetail = (error as ApiError).body?.detail
     showToast('Something went wrong.', `${errDetail}`, 'error')
   }
+
+  const handleSearch = (query: string) => {
+    setSearchQuery(query)
+  }
+
+  const filteredRecipes = recipes?.data?.filter((recipe) =>
+    recipe.title.toLowerCase().includes(searchQuery.toLowerCase()),
+  )
 
   return (
     <>
@@ -38,8 +48,8 @@ export function Recipes() {
             >
               Recipes
             </Heading>
-            <RecipeList recipes={recipes} />
             <HeaderActions type="Recipe" onSearch={handleSearch} />
+            <RecipeList recipes={filteredRecipes} />
           </Container>
         )
       )}
