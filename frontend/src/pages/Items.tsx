@@ -15,7 +15,7 @@ import {
   Thead,
   Tr,
 } from '@chakra-ui/react'
-import Navbar from '../components/Common/Navbar'
+import { HeaderActions } from '../components/Common/HeaderActions'
 import ActionsMenu from '../components/Common/ActionsMenu'
 
 export function Items() {
@@ -49,7 +49,7 @@ export function Items() {
             >
               Items Management
             </Heading>
-            <Navbar type={'Item'} />
+            <HeaderActions type={'Item'} />
             <TableContainer>
               <Table size={{ base: 'sm', md: 'md' }}>
                 <Thead>

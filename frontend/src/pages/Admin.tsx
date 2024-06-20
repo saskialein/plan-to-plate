@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from 'react-query'
 import useCustomToast from '../hooks/useCustomToast'
-import type { ApiError, UserOut} from '../client';
+import type { ApiError, UserOut } from '../client'
 import { UsersService } from '../client'
 import {
   Badge,
@@ -17,7 +17,7 @@ import {
   Thead,
   Tr,
 } from '@chakra-ui/react'
-import Navbar from '../components/Common/Navbar'
+import { HeaderActions } from '../components/Common/HeaderActions'
 import ActionsMenu from '../components/Common/ActionsMenu'
 
 export function Admin() {
@@ -53,7 +53,7 @@ export function Admin() {
             >
               User Management
             </Heading>
-            <Navbar type={'User'} />
+            <HeaderActions type={'User'} />
             <TableContainer>
               <Table fontSize="md" size={{ base: 'sm', md: 'md' }}>
                 <Thead>

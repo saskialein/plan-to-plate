@@ -1,16 +1,24 @@
-import React from 'react'
-import { Button, Flex, Icon, useDisclosure } from '@chakra-ui/react'
-import { FaPlus } from 'react-icons/fa'
+import {
+  Button,
+  Flex,
+  Icon,
+  Input,
+  InputGroup,
+  InputLeftElement,
+  useDisclosure,
+} from '@chakra-ui/react'
+import { FaPlus, FaSearch } from 'react-icons/fa'
 
 import AddUser from '../Admin/AddUser'
 import AddItem from '../Items/AddItem'
 import { AddRecipe } from '../Recipes/AddRecipe'
 
-type NavbarProps = {
+type HeaderActionsProps = {
   type: string
+  onSearch?: (query: string) => void
 }
 
-const Navbar: React.FC<NavbarProps> = ({ type }) => {
+export const HeaderActions = ({ type, onSearch }: HeaderActionsProps) => {
   const addUserModal = useDisclosure()
   const addItemModal = useDisclosure()
   const addRecipeModal = useDisclosure()
@@ -31,16 +39,25 @@ const Navbar: React.FC<NavbarProps> = ({ type }) => {
     }
   }
 
+  const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (onSearch) onSearch(event.target.value)
+  }
+
   return (
     <>
-      <Flex py={8} gap={4}>
-        {/* TODO: Complete search functionality */}
-        {/* <InputGroup w={{ base: '100%', md: 'auto' }}>
-                    <InputLeftElement pointerEvents='none'>
-                        <Icon as={FaSearch} color='gray.400' />
-                    </InputLeftElement>
-                    <Input type='text' placeholder='Search' fontSize={{ base: 'sm', md: 'inherit' }} borderRadius='8px' />
-                </InputGroup> */}
+      <Flex py={8} gap={4} justifyContent="space-between">
+        <InputGroup w={{ base: '100%', md: 'auto' }}>
+          <InputLeftElement pointerEvents="none">
+            <Icon as={FaSearch} color="gray.400" />
+          </InputLeftElement>
+          <Input
+            type="text"
+            placeholder="Search"
+            fontSize={{ base: 'sm', md: 'inherit' }}
+            borderRadius="8px"
+            onChange={handleSearch}
+          />
+        </InputGroup>
         <Button
           variant="primary"
           gap={1}
@@ -59,5 +76,3 @@ const Navbar: React.FC<NavbarProps> = ({ type }) => {
     </>
   )
 }
-
-export default Navbar

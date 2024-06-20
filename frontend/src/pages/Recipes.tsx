@@ -1,5 +1,5 @@
 import { Container, Flex, Heading, Spinner } from '@chakra-ui/react'
-import Navbar from '../components/Common/Navbar'
+import { HeaderActions } from '../components/Common/HeaderActions'
 import useCustomToast from '../hooks/useCustomToast'
 import { useQuery } from 'react-query'
 import type { ApiError } from '../client'
@@ -38,8 +38,8 @@ export function Recipes() {
             >
               Recipes
             </Heading>
-            <Navbar type={'Recipe'} />
             <RecipeList recipes={recipes} />
+            <HeaderActions type="Recipe" onSearch={handleSearch} />
           </Container>
         )
       )}
