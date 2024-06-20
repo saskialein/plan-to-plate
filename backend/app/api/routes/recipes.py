@@ -5,6 +5,7 @@ from app.api.deps import CurrentUser, SessionDep
 from app.models import RecipeCreate, RecipeUpdate, RecipeOut, RecipesOut, Message
 from app import crud
 from app.utils import upload_file_to_b2, get_download_authorization, fetch_html_content, parse_open_graph_data
+from app.core.config import settings
 
 router = APIRouter()
 
@@ -110,7 +111,7 @@ def generate_signed_url_endpoint(file_request: FileRequest, current_user: Curren
 
     try:
         auth_token = get_download_authorization()
-        signed_url = f"https://f002.backblazeb2.com/file/plan-to-plate/recipes/{file_request.file_name}?Authorization={auth_token}"
+        signed_url = f"https://f002.backblazeb2.com/file/{settings.B2_BUCKET_NAME}/{file_request.file_name}?Authorization={auth_token}"
         return {"signed_url": signed_url}
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))

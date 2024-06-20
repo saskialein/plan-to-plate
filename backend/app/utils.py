@@ -124,7 +124,9 @@ b2_api.authorize_account("production", settings.B2_APPLICATION_KEY_ID, settings.
 bucket = b2_api.get_bucket_by_name(settings.B2_BUCKET_NAME)
 
 def upload_file_to_b2(file, file_name):
-    file_info = bucket.upload_bytes(file.read(), file_name)
+    full_file_name = f"recipes/{file_name}"
+
+    file_info = bucket.upload_bytes(file.read(), full_file_name)
     print(f"File Info: {file_info}")
 
     file_url = f"https://f002.backblazeb2.com/file/{settings.B2_BUCKET_NAME}/recipes/{file_name}"
@@ -163,7 +165,6 @@ def get_download_authorization(valid_duration_in_seconds: int = 3600):
         }
     )
     download_auth_data = download_auth_response.json()
-    print(f"Download Auth Data: {download_auth_data}")
     
     if 'authorizationToken' not in download_auth_data:
         raise Exception('Failed to get download authorization', download_auth_data)
