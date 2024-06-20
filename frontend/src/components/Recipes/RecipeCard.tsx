@@ -6,52 +6,39 @@ import {
   CardFooter,
   Divider,
   Heading,
+  Icon,
   Image,
+  Link,
+  Skeleton,
+  SkeletonText,
   Stack,
   Text,
 } from '@chakra-ui/react'
 import { type ApiError, RecipesService, type RecipeOut } from '../../client'
-import { useEffect, useState } from 'react'
-import type { OpenGraphData } from '../../api/apiUtils'
-import { fetchOpenGraphData, fetchSignedUrl } from '../../api/apiUtils'
+import { useMemo } from 'react'
+import { useFetchSignedUrl } from '../../api/utils/getSignedUrl'
 import { useMutation, useQueryClient } from 'react-query'
-import { useForm } from 'react-hook-form'
 import useCustomToast from '../../hooks/useCustomToast'
+import { FaExternalLinkAlt } from 'react-icons/fa'
+import { useFetchOpenGraphData } from '../../api/utils/getOpenGraphData'
 
 export function RecipeCard({ recipe }: { recipe: RecipeOut }) {
   const queryClient = useQueryClient()
   const showToast = useCustomToast()
-  const [openGraphData, setOpenGraphData] =
-    useState<Partial<OpenGraphData> | null>(null)
-  const [fileUrl, setFileUrl] = useState<string | null>(null)
 
-  const {
-    handleSubmit,
-    formState: { isSubmitting },
-  } = useForm()
-
-  function getFileName(url?: string | null) {
-    if (!url) return null
-    const urlObj = new URL(url)
+  const fileName = useMemo(() => {
+    if (!recipe.file_path) return null
+    const urlObj = new URL(recipe.file_path)
     const pathname = urlObj.pathname
     return pathname.substring(pathname.lastIndexOf('/') + 1)
-  }
+  }, [recipe.file_path])
 
-  const fileName = getFileName(recipe.file_path)
-
-  useEffect(() => {
-    const fetchData = async () => {
-      if (recipe.url) {
-        const data = await fetchOpenGraphData(recipe.url)
-        setOpenGraphData(data)
-      } else if (fileName) {
-        const url = await fetchSignedUrl(fileName)
-        setFileUrl(url)
-      }
-    }
-
-    fetchData()
-  }, [recipe])
+  const { data: openGraphData, isLoading: isLoadingOG } = useFetchOpenGraphData(
+    recipe.url || '',
+  )
+  const { data: signedUrl, isLoading: isLoadingFile } = useFetchSignedUrl(
+    fileName || '',
+  )
 
   const deleteRecipe = async (id: number) => {
     await RecipesService.deleteRecipe({ recipeId: id })
@@ -82,30 +69,46 @@ export function RecipeCard({ recipe }: { recipe: RecipeOut }) {
   return (
     <Card maxW="sm">
       <CardBody>
-        {fileUrl ? (
-          <Image src={fileUrl} alt={recipe.title} />
-        ) : openGraphData?.['og:image'] ? (
-          <Image src={openGraphData['og:image']} alt={openGraphData.title} />
-        ) : null}
+        {isLoadingFile || isLoadingOG ? (
+          <Skeleton height="300px" width="100%" />
+        ) : (
+          <Image
+            src={signedUrl || openGraphData?.ogImage}
+            alt={recipe.title}
+            maxHeight="300px"
+            width="100%"
+          />
+        )}
         <Stack mt="6" spacing="3">
           <Heading size="md">{recipe.title}</Heading>
+          {isLoadingOG && <SkeletonText noOfLines={3} />}
           {openGraphData?.description && (
             <Text mt={1}>{openGraphData.description}</Text>
           )}
         </Stack>
+        <Stack alignItems="flex-end">
+          {recipe.url && (
+            <Link href={recipe.url} isExternal>
+              <Icon as={FaExternalLinkAlt} boxSize={6} />
+            </Link>
+          )}
+        </Stack>
       </CardBody>
       <Divider />
-      <CardFooter>
+      <CardFooter justifyContent="space-between">
+        <Button variant="ghost" colorScheme="blue">
+          Upload Photo
+        </Button>
         <ButtonGroup spacing="2">
           <Button
             variant="solid"
             colorScheme="blue"
-            onClick={handleSubmit(onDelete)}
-            isLoading={isSubmitting}
+            onClick={onDelete}
+            isLoading={mutation.isLoading}
           >
             Delete
           </Button>
-          <Button variant="ghost" colorScheme="blue">
+          <Button variant="outline" colorScheme="blue">
             Edit
           </Button>
         </ButtonGroup>
