@@ -1,8 +1,11 @@
 import {
   Button,
+  Checkbox,
   FormControl,
   FormErrorMessage,
   FormLabel,
+  HStack,
+  IconButton,
   Input,
   Modal,
   ModalBody,
@@ -11,6 +14,7 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
+  Textarea,
 } from '@chakra-ui/react'
 import type { SubmitHandler } from 'react-hook-form'
 import { useForm } from 'react-hook-form'
@@ -19,6 +23,8 @@ import { useMutation, useQueryClient } from 'react-query'
 import type { ApiError, Body_recipes_create_recipe } from '../../client'
 import { RecipesService } from '../../client'
 import useCustomToast from '../../hooks/useCustomToast'
+import { AiOutlinePaperClip } from 'react-icons/ai'
+import { IoMdClose } from 'react-icons/io'
 
 type AddRecipeProps = {
   isOpen: boolean
@@ -29,6 +35,9 @@ type FormValues = {
   title: string
   url?: string
   file?: FileList | null
+  storeInVectorDb: boolean
+  description?: string
+  comment?: string
 }
 
 export function AddRecipe({ isOpen, onClose }: AddRecipeProps) {
@@ -40,6 +49,7 @@ export function AddRecipe({ isOpen, onClose }: AddRecipeProps) {
     reset,
     setValue,
     formState: { errors, isSubmitting },
+    watch,
   } = useForm<FormValues>({
     mode: 'onBlur',
     criteriaMode: 'all',
@@ -47,8 +57,12 @@ export function AddRecipe({ isOpen, onClose }: AddRecipeProps) {
       title: '',
       file: null,
       url: '',
+      storeInVectorDb: false,
     },
   })
+
+  const file = watch('file')
+  const url = watch('url')
 
   const addRecipe = async (formData: Body_recipes_create_recipe) => {
     await RecipesService.createRecipe({
@@ -104,11 +118,20 @@ export function AddRecipe({ isOpen, onClose }: AddRecipeProps) {
     })
   }
 
+  const handleRemoveFile = () => {
+    setValue('file', null, { shouldValidate: true })
+  }
+
+  const handleClose = () => {
+    reset()
+    onClose()
+  }
+
   return (
     <>
       <Modal
         isOpen={isOpen}
-        onClose={onClose}
+        onClose={handleClose}
         size={{ base: 'sm', md: 'md' }}
         isCentered
       >
@@ -135,30 +158,107 @@ export function AddRecipe({ isOpen, onClose }: AddRecipeProps) {
                 <FormErrorMessage>{errors.title.message}</FormErrorMessage>
               )}
             </FormControl>
+            {!file && (
+              <FormControl mt={4}>
+                <FormLabel htmlFor="url">URL</FormLabel>
+                <Input
+                  id="url"
+                  {...register('url')}
+                  placeholder="Url"
+                  type="text"
+                />
+                {errors.url && (
+                  <FormErrorMessage>{errors.url.message}</FormErrorMessage>
+                )}
+              </FormControl>
+            )}
+            {!url && (
+              <FormControl mt={4}>
+                <FormLabel htmlFor="file">File</FormLabel>
+                <Input
+                  id="file_path"
+                  {...register('file')}
+                  type="file"
+                  accept=".txt, .pdf, .jpg"
+                  style={{ display: 'none' }}
+                />
+                {file && file.length > 0 ? (
+                  <HStack
+                    spacing={2}
+                    justifyContent="space-between"
+                    alignItems="center"
+                  >
+                    <HStack spacing={2}>
+                      <IconButton
+                        variant="ghost"
+                        colorScheme="teal"
+                        as="label"
+                        htmlFor="file_path"
+                        aria-label="Attach file"
+                        icon={<AiOutlinePaperClip fontSize="1.6rem" />}
+                      />
+                      <span>{file[0].name}</span>
+                    </HStack>
+                    <IconButton
+                      variant="ghost"
+                      icon={<IoMdClose fontSize="1.4rem" />}
+                      colorScheme="teal"
+                      onClick={handleRemoveFile}
+                      aria-label="Remove file"
+                    />
+                  </HStack>
+                ) : (
+                  <Button
+                    as="label"
+                    htmlFor="file_path"
+                    cursor="pointer"
+                    variant="outline"
+                    colorScheme="teal"
+                  >
+                    Choose file
+                  </Button>
+                )}
+                {errors.file && (
+                  <FormErrorMessage>{errors.file.message}</FormErrorMessage>
+                )}
+              </FormControl>
+            )}
+            {file && file.length > 0 && (
+              <FormControl mt={4}>
+                <FormLabel htmlFor="description">
+                  Description (optional)
+                </FormLabel>
+                <Textarea
+                  id="description"
+                  {...register('description')}
+                  placeholder="Description"
+                />
+                {errors.description && (
+                  <FormErrorMessage>
+                    {errors.description.message}
+                  </FormErrorMessage>
+                )}
+              </FormControl>
+            )}
             <FormControl mt={4}>
-              <FormLabel htmlFor="url">URL</FormLabel>
-              <Input
-                id="url"
-                {...register('url')}
-                placeholder="Url"
-                type="text"
+              <FormLabel htmlFor="comment">Comment (optional)</FormLabel>
+              <Textarea
+                id="comment"
+                {...register('comment')}
+                placeholder="Comment"
               />
-              {errors.url && (
-                <FormErrorMessage>{errors.url.message}</FormErrorMessage>
+              {errors.comment && (
+                <FormErrorMessage>{errors.comment.message}</FormErrorMessage>
               )}
             </FormControl>
             <FormControl mt={4}>
-              <FormLabel htmlFor="file">File</FormLabel>
-              <Input
-                id="file_path"
-                {...register('file')}
-                placeholder="File"
-                type="file"
-                accept=".txt, .pdf, .jpg"
-              />
-              {errors.file && (
-                <FormErrorMessage>{errors.file.message}</FormErrorMessage>
-              )}
+              <Checkbox
+                colorScheme="teal"
+                id="storeInVectorDb"
+                {...register('storeInVectorDb')}
+              >
+                Consider for Meal Plan
+              </Checkbox>
             </FormControl>
           </ModalBody>
 
@@ -166,7 +266,7 @@ export function AddRecipe({ isOpen, onClose }: AddRecipeProps) {
             <Button variant="primary" type="submit" isLoading={isSubmitting}>
               Save
             </Button>
-            <Button onClick={onClose}>Cancel</Button>
+            <Button onClick={handleClose}>Cancel</Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
