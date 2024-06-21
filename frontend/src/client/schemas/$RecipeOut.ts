@@ -24,6 +24,17 @@ export const $RecipeOut = {
                 type: 'null',
             }],
         },
+        description: {
+            type: 'any-of',
+            contains: [{
+                type: 'string',
+            }, {
+                type: 'null',
+            }],
+        },
+        store_in_vector_db: {
+            type: 'boolean',
+        },
         id: {
             type: 'number',
             isRequired: true,
@@ -31,6 +42,12 @@ export const $RecipeOut = {
         owner_id: {
             type: 'number',
             isRequired: true,
+        },
+        comments: {
+            type: 'array',
+            contains: {
+                type: 'CommentCreate',
+            },
         },
     },
 } as const;

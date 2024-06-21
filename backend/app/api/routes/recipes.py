@@ -1,8 +1,8 @@
-from typing import Any
+from typing import Any, List
 from pydantic import BaseModel
 from fastapi import APIRouter, HTTPException, UploadFile, File, Form
 from app.api.deps import CurrentUser, SessionDep
-from app.models import RecipeCreate, RecipeUpdate, RecipeOut, RecipesOut, Message
+from app.models import RecipeCreate, RecipeUpdate, RecipeOut, RecipesOut, Message, CommentCreate
 from app import crud
 from app.utils import upload_file_to_b2, get_download_authorization, fetch_html_content, parse_open_graph_data
 from app.core.config import settings
@@ -16,6 +16,9 @@ def create_recipe(
     title: str = Form(...),
     url: str = Form(None),
     file: UploadFile = File(None),
+    description: str = Form(None),
+    store_in_vector_db: bool = Form(False),
+    comments: List[CommentCreate] = Form([]),
     current_user: CurrentUser
 ) -> Any:
     """
@@ -29,7 +32,12 @@ def create_recipe(
         # Upload the file to the bucket
         file_url = upload_file_to_b2(file.file, file.filename)
     
-    recipe_in = RecipeCreate(title=title, url=url, file_path=file_url)
+    recipe_in = RecipeCreate(
+        title=title, url=url, 
+        file_path=file_url, 
+        description=description,
+        store_in_vector_db=store_in_vector_db,
+        comments=comments)
     recipe = crud.create_recipe(db=session, recipe_in=recipe_in, user_id=current_user.id)
     # TODO: Add logic to store recipe in vector database
     return recipe

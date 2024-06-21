@@ -15,5 +15,17 @@ export const $Body_recipes_create_recipe = {
             type: 'binary',
             format: 'binary',
         },
+        description: {
+            type: 'string',
+        },
+        store_in_vector_db: {
+            type: 'boolean',
+        },
+        comments: {
+            type: 'array',
+            contains: {
+                type: 'CommentCreate',
+            },
+        },
     },
 } as const;

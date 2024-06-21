@@ -3,7 +3,7 @@ from typing import Any, List, Optional
 from sqlmodel import Session, select
 
 from app.core.security import get_password_hash, verify_password
-from app.models import Item, ItemCreate, User, UserCreate, UserUpdate, RecipeCreate, Recipe, RecipeUpdate
+from app.models import Item, ItemCreate, User, UserCreate, UserUpdate, RecipeCreate, Recipe, RecipeUpdate, Comment, CommentCreate
 from app.utils import delete_file_from_b2
 
 def create_user(*, session: Session, user_create: UserCreate) -> User:
@@ -53,10 +53,17 @@ def create_item(*, session: Session, item_in: ItemCreate, owner_id: int) -> Item
     return db_item
 
 def create_recipe(db: Session, recipe_in: RecipeCreate, user_id: int) -> Recipe:
-    db_recipe = Recipe(**recipe_in.dict(), owner_id=user_id)
+    comments_data = recipe_in.comments
+    recipe_data = recipe_in.dict(exclude={"comments"})
+    db_recipe = Recipe(**recipe_data, owner_id=user_id)
     db.add(db_recipe)
     db.commit()
     db.refresh(db_recipe)
+    
+    for comment_data in comments_data:
+        db_comment = Comment(**comment_data.dict(), recipe_id=db_recipe.id, user_id=user_id)
+        db.add(db_comment)
+    db.commit()
     return db_recipe
 
 def get_recipe(db: Session, recipe_id: int) -> Optional[Recipe]:
@@ -66,10 +73,18 @@ def get_recipes(db: Session, user_id: int, skip: int = 0, limit: int = 100) -> L
     return db.query(Recipe).filter(Recipe.owner_id == user_id).offset(skip).limit(limit).all()
 
 def update_recipe(db: Session, db_recipe: Recipe, recipe_in: RecipeUpdate) -> Recipe:
-    db_recipe.update(recipe_in.dict(exclude_unset=True))
+    comments_data = recipe_in.comments
+    recipe_data = recipe_in.dict(exclude_unset=True, exclude={"comments"})
+    for key, value in recipe_data.items():
+        setattr(db_recipe, key, value)
     db.add(db_recipe)
     db.commit()
     db.refresh(db_recipe)
+    
+    for comment_data in comments_data:
+        db_comment = Comment(**comment_data.dict(), recipe_id=db_recipe.id, user_id=db_recipe.owner_id)
+        db.add(db_comment)
+    db.commit()
     return db_recipe
 
 def delete_recipe(db: Session, db_recipe: Recipe) -> None:
@@ -77,3 +92,4 @@ def delete_recipe(db: Session, db_recipe: Recipe) -> None:
         delete_file_from_b2(db_recipe.file_path)
     db.delete(db_recipe)
     db.commit()
+    

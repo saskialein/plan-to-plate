@@ -1,5 +1,6 @@
 from sqlmodel import Field, Relationship, SQLModel
 from typing import List, Optional
+from datetime import datetime, timezone
 
 # Shared properties
 # TODO replace email str with EmailStr when sqlmodel supports it
@@ -46,6 +47,8 @@ class User(UserBase, table=True):
     hashed_password: str
     items: list["Item"] = Relationship(back_populates="owner")
     recipes: List["Recipe"] = Relationship(back_populates="owner")
+    comments: List["Comment"] = Relationship(back_populates="user")
+
 
 
 # Properties to return via API, id is always required
@@ -117,21 +120,45 @@ class RecipeBase(SQLModel):
     title: str
     url: Optional[str] = None
     file_path: Optional[str] = None
+    description: Optional[str] = None
+    store_in_vector_db: bool = False
+
+class CommentBase(SQLModel):
+    content: str
+
+class CommentCreate(CommentBase):
+   pass
+
+class Comment(CommentBase, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    recipe_id: int | None = Field(default=None, foreign_key="recipe.id", nullable=False)
+    user_id: int | None = Field(default=None, foreign_key="user.id", nullable=False)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    recipe: Optional["Recipe"] = Relationship(back_populates="comments")
+    user: Optional["User"] = Relationship(back_populates="comments")
 
 class RecipeCreate(RecipeBase):
-    pass
+    comments: List[CommentCreate] = []
 
 class RecipeUpdate(RecipeBase):
     title: str | None = None
+    description: Optional[str] = None
+    store_in_vector_db: Optional[bool] = None
+    comments: List[CommentCreate] = []
+
 
 class Recipe(RecipeBase, table=True):
     id: int | None = Field(default=None, primary_key=True)
     owner_id: int | None = Field(default=None, foreign_key="user.id", nullable=False)
     owner: User | None = Relationship(back_populates="recipes")
+    comments: List[Comment] = Relationship(back_populates="recipe")
+
 class RecipeOut(RecipeBase):
     id: int
     owner_id: int
+    comments: List[CommentCreate] = []
 
 class RecipesOut(SQLModel):
     data: list[RecipeOut]
     count: int
+

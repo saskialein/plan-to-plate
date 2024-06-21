@@ -4,9 +4,11 @@
 /* eslint-disable */
 import type { Body_recipes_create_recipe } from '../models/Body_recipes_create_recipe';
 import type { FileRequest } from '../models/FileRequest';
+import type { Message } from '../models/Message';
 import type { RecipeOut } from '../models/RecipeOut';
 import type { RecipesOut } from '../models/RecipesOut';
 import type { RecipeUpdate } from '../models/RecipeUpdate';
+import type { URLRequest } from '../models/URLRequest';
 
 import type { CancelablePromise } from '../core/CancelablePromise';
 import { OpenAPI } from '../core/OpenAPI';
@@ -115,14 +117,14 @@ export class RecipesService {
     /**
      * Delete Recipe
      * Delete a recipe.
-     * @returns RecipeOut Successful Response
+     * @returns Message Successful Response
      * @throws ApiError
      */
     public static deleteRecipe({
         recipeId,
     }: {
         recipeId: number,
-    }): CancelablePromise<RecipeOut> {
+    }): CancelablePromise<Message> {
         return __request(OpenAPI, {
             method: 'DELETE',
             url: '/api/v1/recipes/{recipe_id}',
@@ -148,6 +150,27 @@ export class RecipesService {
         return __request(OpenAPI, {
             method: 'POST',
             url: '/api/v1/recipes/generate-signed-url',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: `Validation Error`,
+            },
+        });
+    }
+
+    /**
+     * Fetch Opengraph
+     * @returns any Successful Response
+     * @throws ApiError
+     */
+    public static fetchOpengraph({
+        requestBody,
+    }: {
+        requestBody: URLRequest,
+    }): CancelablePromise<any> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/recipes/fetch-opengraph',
             body: requestBody,
             mediaType: 'application/json',
             errors: {
