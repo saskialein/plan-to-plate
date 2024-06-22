@@ -13,6 +13,7 @@ from app.core.config import settings
 from b2sdk.v2 import InMemoryAccountInfo, B2Api
 from bs4 import BeautifulSoup
 import requests
+from urllib.parse import urlparse
 
 @dataclass
 class EmailData:
@@ -133,8 +134,8 @@ def upload_file_to_b2(file, file_name):
     return file_url
 
 def delete_file_from_b2(file_path: str):
-    file_name = file_path.split('/')[-1]
-    file_versions = bucket.list_file_versions(file_name)
+    file_name = get_file_name(file_path)
+    file_versions = bucket.list_file_versions(file_name=file_name)
 
     for file_version in file_versions:
         bucket.delete_file_version(file_version.id_, file_version.file_name)
@@ -196,3 +197,20 @@ def parse_open_graph_data(html: str) -> dict:
             metadata[property] = content
     
     return metadata
+
+def get_file_name(url):
+    parsed_url = urlparse(url)
+    segments = parsed_url.path.split('/')
+    last_segments = '/'.join(segments[-2:])
+    return last_segments
+
+def list_files_in_bucket():
+    try:
+        for file_info, _ in bucket.ls(recursive=True):
+            if file_info.file_name != 'recipes/.bzEmpty':
+                print(f"File: {file_info.file_name}")
+    except Exception as e:
+        print(f"Error listing files: {e}")
+
+# Example usage
+list_files_in_bucket()
