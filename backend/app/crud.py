@@ -53,17 +53,23 @@ def create_item(*, session: Session, item_in: ItemCreate, owner_id: int) -> Item
     return db_item
 
 def create_recipe(db: Session, recipe_in: RecipeCreate, user_id: int) -> Recipe:
-    comments_data = recipe_in.comments
-    recipe_data = recipe_in.dict(exclude={"comments"})
-    db_recipe = Recipe(**recipe_data, owner_id=user_id)
+    db_recipe = Recipe(
+        title=recipe_in.title,
+        url=recipe_in.url,
+        file_path=recipe_in.file_path,
+        description=recipe_in.description,
+        store_in_vector_db=recipe_in.store_in_vector_db,
+        owner_id=user_id
+    )
     db.add(db_recipe)
     db.commit()
     db.refresh(db_recipe)
     
-    for comment_data in comments_data:
-        db_comment = Comment(**comment_data.dict(), recipe_id=db_recipe.id, user_id=user_id)
+    if recipe_in.comment:
+        db_comment = Comment(content=recipe_in.comment, recipe_id=db_recipe.id, user_id=user_id)
         db.add(db_comment)
-    db.commit()
+        db.commit()
+        
     return db_recipe
 
 def get_recipe(db: Session, recipe_id: int) -> Optional[Recipe]:
@@ -73,23 +79,30 @@ def get_recipes(db: Session, user_id: int, skip: int = 0, limit: int = 100) -> L
     return db.query(Recipe).filter(Recipe.owner_id == user_id).offset(skip).limit(limit).all()
 
 def update_recipe(db: Session, db_recipe: Recipe, recipe_in: RecipeUpdate) -> Recipe:
-    comments_data = recipe_in.comments
     recipe_data = recipe_in.dict(exclude_unset=True, exclude={"comments"})
     for key, value in recipe_data.items():
         setattr(db_recipe, key, value)
     db.add(db_recipe)
     db.commit()
     db.refresh(db_recipe)
-    
-    for comment_data in comments_data:
-        db_comment = Comment(**comment_data.dict(), recipe_id=db_recipe.id, user_id=db_recipe.owner_id)
-        db.add(db_comment)
-    db.commit()
     return db_recipe
 
 def delete_recipe(db: Session, db_recipe: Recipe) -> None:
     if db_recipe.file_path:
         delete_file_from_b2(db_recipe.file_path)
+    db.query(Comment).filter(Comment.recipe_id == db_recipe.id).delete()
     db.delete(db_recipe)
     db.commit()
     
+def add_comment(db: Session, comment_in: CommentCreate, recipe_id: int, user_id: int) -> Comment:
+    db_comment = Comment(**comment_in.dict(), recipe_id=recipe_id, user_id=user_id)
+    db.add(db_comment)
+    db.commit()
+    db.refresh(db_comment)
+    return db_comment
+
+def delete_comment(db: Session, comment_id: int) -> None:
+    db_comment = db.query(Comment).filter(Comment.id == comment_id).first()
+    if db_comment:
+        db.delete(db_comment)
+        db.commit()

@@ -2,7 +2,7 @@ from typing import Any, List
 from pydantic import BaseModel
 from fastapi import APIRouter, HTTPException, UploadFile, File, Form
 from app.api.deps import CurrentUser, SessionDep
-from app.models import RecipeCreate, RecipeUpdate, RecipeOut, RecipesOut, Message, CommentCreate
+from app.models import RecipeCreate, RecipeUpdate, RecipeOut, RecipesOut, Message, CommentCreate, Comment
 from app import crud
 from app.utils import upload_file_to_b2, get_download_authorization, fetch_html_content, parse_open_graph_data
 from app.core.config import settings
@@ -18,7 +18,7 @@ def create_recipe(
     file: UploadFile = File(None),
     description: str = Form(None),
     store_in_vector_db: bool = Form(False),
-    comments: List[CommentCreate] = Form([]),
+    comment: str = Form(None),
     current_user: CurrentUser
 ) -> Any:
     """
@@ -37,9 +37,12 @@ def create_recipe(
         file_path=file_url, 
         description=description,
         store_in_vector_db=store_in_vector_db,
-        comments=comments)
+        comment=comment)
+    
     recipe = crud.create_recipe(db=session, recipe_in=recipe_in, user_id=current_user.id)
+    
     # TODO: Add logic to store recipe in vector database
+    print("Created Recipe:", recipe)
     return recipe
 
 @router.get("/{recipe_id}", response_model=RecipeOut)
@@ -119,7 +122,7 @@ def generate_signed_url_endpoint(file_request: FileRequest, current_user: Curren
 
     try:
         auth_token = get_download_authorization()
-        signed_url = f"https://f002.backblazeb2.com/file/{settings.B2_BUCKET_NAME}/{file_request.file_name}?Authorization={auth_token}"
+        signed_url = f"https://f002.backblazeb2.com/file/{settings.B2_BUCKET_NAME}/recipes/{file_request.file_name}?Authorization={auth_token}"
         return {"signed_url": signed_url}
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -136,3 +139,36 @@ async def fetch_opengraph(data: URLRequest):
         return og_data
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+@router.post("/{recipe_id}/comments", response_model=CommentCreate)
+def add_comment(
+    *,
+    session: SessionDep,
+    recipe_id: int,
+    content: str = Form(...),
+    current_user: CurrentUser
+) -> Any:
+    """
+    Add a comment to a recipe.
+    """
+    comment_in = CommentCreate(content=content)
+    comment = crud.add_comment(db=session, comment_in=comment_in, recipe_id=recipe_id, user_id=current_user.id)
+    return comment
+
+@router.delete("/comments/{comment_id}")
+def delete_comment(
+    *,
+    session: SessionDep,
+    comment_id: int,
+    current_user: CurrentUser,
+) -> Message:
+    """
+    Delete a comment from a recipe.
+    """
+    comment = session.get(Comment, comment_id)
+    if not comment:
+        raise HTTPException(status_code=404, detail="Comment not found")
+    if comment.user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Not enough permissions")
+    crud.delete_comment(db=session, comment_id=comment_id, user_id=current_user.id)
+    return Message(message="Comment deleted successfully")

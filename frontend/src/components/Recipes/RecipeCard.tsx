@@ -82,9 +82,9 @@ export function RecipeCard({ recipe }: { recipe: RecipeOut }) {
         <Stack mt="6" spacing="3">
           <Heading size="md">{recipe.title}</Heading>
           {isLoadingOG && <SkeletonText noOfLines={3} />}
-          {openGraphData?.description && (
-            <Text mt={1}>{openGraphData.description}</Text>
-          )}
+          <Text mt={1}>
+            {openGraphData?.description || recipe?.description}
+          </Text>
         </Stack>
         <Stack alignItems="flex-end">
           {recipe.url && (
@@ -96,8 +96,8 @@ export function RecipeCard({ recipe }: { recipe: RecipeOut }) {
       </CardBody>
       <Divider />
       <CardFooter justifyContent="space-between">
-        <Button variant="ghost" colorScheme="blue">
-          Upload Photo
+        <Button variant="ghost" colorScheme="blue" mr={4}>
+          Add Comment
         </Button>
         <ButtonGroup spacing="2">
           <Button

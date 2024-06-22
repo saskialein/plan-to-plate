@@ -99,14 +99,21 @@ export function AddRecipe({ isOpen, onClose }: AddRecipeProps) {
       return
     }
 
-    if (data.file && data.file.length > 0) {
-      //@ts-expect-error: FileList is not assignable to Blob
-      data.file = data.file[0]
-    } else {
-      data.file = null
+    const formData: Body_recipes_create_recipe = {
+      ...data,
+      file: data.file && data.file.length > 0 ? data.file[0] : undefined,
     }
 
-    mutation.mutate(data as Body_recipes_create_recipe)
+    mutation.mutate(formData)
+
+    // if (data.file && data.file.length > 0) {
+    //   //@ts-expect-error: FileList is not assignable to Blob
+    //   data.file = data.file[0]
+    // } else {
+    //   data.file = null
+    // }
+
+    // mutation.mutate(data as Body_recipes_create_recipe)
   }
 
   const toTitleCase = (str: string) => {

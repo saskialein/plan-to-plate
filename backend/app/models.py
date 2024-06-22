@@ -136,15 +136,19 @@ class Comment(CommentBase, table=True):
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     recipe: Optional["Recipe"] = Relationship(back_populates="comments")
     user: Optional["User"] = Relationship(back_populates="comments")
+    
+class CommentOut(CommentBase):
+    id: int
+    created_at: datetime
 
 class RecipeCreate(RecipeBase):
-    comments: List[CommentCreate] = []
+    comment: Optional[str] = None
+
 
 class RecipeUpdate(RecipeBase):
     title: str | None = None
     description: Optional[str] = None
     store_in_vector_db: Optional[bool] = None
-    comments: List[CommentCreate] = []
 
 
 class Recipe(RecipeBase, table=True):
@@ -156,7 +160,7 @@ class Recipe(RecipeBase, table=True):
 class RecipeOut(RecipeBase):
     id: int
     owner_id: int
-    comments: List[CommentCreate] = []
+    comments: List[CommentOut] = []
 
 class RecipesOut(SQLModel):
     data: list[RecipeOut]

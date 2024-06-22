@@ -30,12 +30,7 @@ def upgrade():
     sa.PrimaryKeyConstraint('id')
     )
     op.add_column('recipe', sa.Column('description', sqlmodel.sql.sqltypes.AutoString(), nullable=True))
-    op.add_column('recipe', sa.Column('store_in_vector_db', sa.Boolean(), nullable=True))
-    # Set default value for existing rows
-    op.execute('UPDATE recipe SET store_in_vector_db = false WHERE store_in_vector_db IS NULL')
-    # Alter column to be NOT NULL
-    op.alter_column('recipe', 'store_in_vector_db', nullable=False)
-    # ### end Alembic commands ###
+    op.add_column('recipe', sa.Column('store_in_vector_db', sa.Boolean(), nullable=False, server_default=sa.text('FALSE')))
 
 
 def downgrade():
