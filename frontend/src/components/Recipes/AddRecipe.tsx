@@ -16,11 +16,10 @@ import {
   ModalOverlay,
   Textarea,
 } from '@chakra-ui/react'
-import type { SubmitHandler } from 'react-hook-form'
 import { useForm } from 'react-hook-form'
 import { useMutation, useQueryClient } from 'react-query'
 
-import type { ApiError, Body_recipes_create_recipe } from '../../client'
+import type { ApiError } from '../../client'
 import { RecipesService } from '../../client'
 import useCustomToast from '../../hooks/useCustomToast'
 import { AiOutlinePaperClip } from 'react-icons/ai'
@@ -64,10 +63,8 @@ export function AddRecipe({ isOpen, onClose }: AddRecipeProps) {
   const file = watch('file')
   const url = watch('url')
 
-  const addRecipe = async (formData: Body_recipes_create_recipe) => {
-    await RecipesService.createRecipe({
-      formData,
-    })
+  const addRecipe = async (formData: FormData) => {
+    await RecipesService.createRecipe({ formData })
   }
 
   const mutation = useMutation(addRecipe, {
@@ -85,36 +82,41 @@ export function AddRecipe({ isOpen, onClose }: AddRecipeProps) {
     },
   })
 
-  const onSubmit: SubmitHandler<FormValues> = (data) => {
-    if (!data.title) {
-      showToast('Title is required.', 'Please fill the title.', 'error')
-      return
-    }
-    if (!data.file && !data.url) {
-      showToast(
-        'File or URL is required.',
-        'Please fill the file or url.',
-        'error',
-      )
-      return
-    }
+  const onSubmit = (data: FormValues) => {
+    const formData = new FormData()
+    formData.append('title', data.title)
+    formData.append('url', data.url || '')
+    formData.append('description', data.description || '')
+    formData.append('storeInVectorDb', data.storeInVectorDb.toString())
+    formData.append('comment', data.comment || '')
 
-    const formData: Body_recipes_create_recipe = {
-      ...data,
-      file: data.file && data.file.length > 0 ? data.file[0] : undefined,
+    if (data.file && data.file[0]) {
+      formData.append('file', data.file[0])
     }
 
     mutation.mutate(formData)
-
-    // if (data.file && data.file.length > 0) {
-    //   //@ts-expect-error: FileList is not assignable to Blob
-    //   data.file = data.file[0]
-    // } else {
-    //   data.file = null
-    // }
-
-    // mutation.mutate(data as Body_recipes_create_recipe)
   }
+  // const onSubmit: SubmitHandler<FormValues> = (data) => {
+  //   if (!data.title) {
+  //     showToast('Title is required.', 'Please fill the title.', 'error')
+  //     return
+  //   }
+  //   if (!data.file && !data.url) {
+  //     showToast(
+  //       'File or URL is required.',
+  //       'Please fill the file or url.',
+  //       'error',
+  //     )
+  //     return
+  //   }
+
+  //   const formData: RecipeCreate = {
+  //     ...data,
+  //     file: data.file && data.file.length > 0 ? data.file[0] : undefined,
+  //   }
+
+  //   mutation.mutate(formData)
+  // }
 
   const toTitleCase = (str: string) => {
     return str.replace(/\w\S*/g, function (txt) {
@@ -135,148 +137,146 @@ export function AddRecipe({ isOpen, onClose }: AddRecipeProps) {
   }
 
   return (
-    <>
-      <Modal
-        isOpen={isOpen}
-        onClose={handleClose}
-        size={{ base: 'sm', md: 'md' }}
-        isCentered
-      >
-        <ModalOverlay />
-        <ModalContent as="form" onSubmit={handleSubmit(onSubmit)}>
-          <ModalHeader>Add Recipe</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody pb={6}>
-            <FormControl isRequired isInvalid={!!errors.title}>
-              <FormLabel htmlFor="title">Title</FormLabel>
+    <Modal
+      isOpen={isOpen}
+      onClose={handleClose}
+      size={{ base: 'sm', md: 'md' }}
+      isCentered
+    >
+      <ModalOverlay />
+      <ModalContent as="form" onSubmit={handleSubmit(onSubmit)}>
+        <ModalHeader>Add Recipe</ModalHeader>
+        <ModalCloseButton />
+        <ModalBody pb={6}>
+          <FormControl isRequired isInvalid={!!errors.title}>
+            <FormLabel htmlFor="title">Title</FormLabel>
+            <Input
+              id="title"
+              {...register('title', {
+                required: 'Title is required.',
+                onChange: (e) => {
+                  const formattedTitle = toTitleCase(e.target.value)
+                  setValue('title', formattedTitle, { shouldValidate: true })
+                },
+              })}
+              placeholder="Title"
+              type="text"
+            />
+            {errors.title && (
+              <FormErrorMessage>{errors.title.message}</FormErrorMessage>
+            )}
+          </FormControl>
+          {!file && (
+            <FormControl mt={4}>
+              <FormLabel htmlFor="url">URL</FormLabel>
               <Input
-                id="title"
-                {...register('title', {
-                  required: 'Title is required.',
-                  onChange: (e) => {
-                    const formattedTitle = toTitleCase(e.target.value)
-                    setValue('title', formattedTitle, { shouldValidate: true })
-                  },
-                })}
-                placeholder="Title"
+                id="url"
+                {...register('url')}
+                placeholder="Url"
                 type="text"
               />
-              {errors.title && (
-                <FormErrorMessage>{errors.title.message}</FormErrorMessage>
+              {errors.url && (
+                <FormErrorMessage>{errors.url.message}</FormErrorMessage>
               )}
             </FormControl>
-            {!file && (
-              <FormControl mt={4}>
-                <FormLabel htmlFor="url">URL</FormLabel>
-                <Input
-                  id="url"
-                  {...register('url')}
-                  placeholder="Url"
-                  type="text"
-                />
-                {errors.url && (
-                  <FormErrorMessage>{errors.url.message}</FormErrorMessage>
-                )}
-              </FormControl>
-            )}
-            {!url && (
-              <FormControl mt={4}>
-                <FormLabel htmlFor="file">File</FormLabel>
-                <Input
-                  id="file_path"
-                  {...register('file')}
-                  type="file"
-                  accept=".txt, .pdf, .jpg"
-                  style={{ display: 'none' }}
-                />
-                {file && file.length > 0 ? (
-                  <HStack
-                    spacing={2}
-                    justifyContent="space-between"
-                    alignItems="center"
-                  >
-                    <HStack spacing={2}>
-                      <IconButton
-                        variant="ghost"
-                        colorScheme="teal"
-                        as="label"
-                        htmlFor="file_path"
-                        aria-label="Attach file"
-                        icon={<AiOutlinePaperClip fontSize="1.6rem" />}
-                      />
-                      <span>{file[0].name}</span>
-                    </HStack>
+          )}
+          {!url && (
+            <FormControl mt={4}>
+              <FormLabel htmlFor="file">File</FormLabel>
+              <Input
+                id="file_path"
+                {...register('file')}
+                type="file"
+                accept=".txt, .pdf, .jpg"
+                style={{ display: 'none' }}
+              />
+              {file && file.length > 0 ? (
+                <HStack
+                  spacing={2}
+                  justifyContent="space-between"
+                  alignItems="center"
+                >
+                  <HStack spacing={2}>
                     <IconButton
                       variant="ghost"
-                      icon={<IoMdClose fontSize="1.4rem" />}
                       colorScheme="teal"
-                      onClick={handleRemoveFile}
-                      aria-label="Remove file"
+                      as="label"
+                      htmlFor="file_path"
+                      aria-label="Attach file"
+                      icon={<AiOutlinePaperClip fontSize="1.6rem" />}
                     />
+                    <span>{file[0].name}</span>
                   </HStack>
-                ) : (
-                  <Button
-                    as="label"
-                    htmlFor="file_path"
-                    cursor="pointer"
-                    variant="outline"
+                  <IconButton
+                    variant="ghost"
+                    icon={<IoMdClose fontSize="1.4rem" />}
                     colorScheme="teal"
-                  >
-                    Choose file
-                  </Button>
-                )}
-                {errors.file && (
-                  <FormErrorMessage>{errors.file.message}</FormErrorMessage>
-                )}
-              </FormControl>
-            )}
-            {file && file.length > 0 && (
-              <FormControl mt={4}>
-                <FormLabel htmlFor="description">
-                  Description (optional)
-                </FormLabel>
-                <Textarea
-                  id="description"
-                  {...register('description')}
-                  placeholder="Description"
-                />
-                {errors.description && (
-                  <FormErrorMessage>
-                    {errors.description.message}
-                  </FormErrorMessage>
-                )}
-              </FormControl>
-            )}
-            <FormControl mt={4}>
-              <FormLabel htmlFor="comment">Comment (optional)</FormLabel>
-              <Textarea
-                id="comment"
-                {...register('comment')}
-                placeholder="Comment"
-              />
-              {errors.comment && (
-                <FormErrorMessage>{errors.comment.message}</FormErrorMessage>
+                    onClick={handleRemoveFile}
+                    aria-label="Remove file"
+                  />
+                </HStack>
+              ) : (
+                <Button
+                  as="label"
+                  htmlFor="file_path"
+                  cursor="pointer"
+                  variant="outline"
+                  colorScheme="teal"
+                >
+                  Choose file
+                </Button>
+              )}
+              {errors.file && (
+                <FormErrorMessage>{errors.file.message}</FormErrorMessage>
               )}
             </FormControl>
+          )}
+          {file && file.length > 0 && (
             <FormControl mt={4}>
-              <Checkbox
-                colorScheme="teal"
-                id="storeInVectorDb"
-                {...register('storeInVectorDb')}
-              >
-                Consider for Meal Plan
-              </Checkbox>
+              <FormLabel htmlFor="description">
+                Description (optional)
+              </FormLabel>
+              <Textarea
+                id="description"
+                {...register('description')}
+                placeholder="Description"
+              />
+              {errors.description && (
+                <FormErrorMessage>
+                  {errors.description.message}
+                </FormErrorMessage>
+              )}
             </FormControl>
-          </ModalBody>
+          )}
+          <FormControl mt={4}>
+            <FormLabel htmlFor="comment">Comment (optional)</FormLabel>
+            <Textarea
+              id="comment"
+              {...register('comment')}
+              placeholder="Comment"
+            />
+            {errors.comment && (
+              <FormErrorMessage>{errors.comment.message}</FormErrorMessage>
+            )}
+          </FormControl>
+          <FormControl mt={4}>
+            <Checkbox
+              colorScheme="teal"
+              id="storeInVectorDb"
+              {...register('storeInVectorDb')}
+            >
+              Consider for Meal Plan
+            </Checkbox>
+          </FormControl>
+        </ModalBody>
 
-          <ModalFooter gap={3}>
-            <Button variant="primary" type="submit" isLoading={isSubmitting}>
-              Save
-            </Button>
-            <Button onClick={handleClose}>Cancel</Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
-    </>
+        <ModalFooter gap={3}>
+          <Button variant="primary" type="submit" isLoading={isSubmitting}>
+            Save
+          </Button>
+          <Button onClick={handleClose}>Cancel</Button>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
   )
 }
