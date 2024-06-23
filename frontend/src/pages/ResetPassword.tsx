@@ -1,6 +1,6 @@
-import type { SubmitHandler} from 'react-hook-form';
+import type { SubmitHandler } from 'react-hook-form'
 import { useForm } from 'react-hook-form'
-import type { ApiError, NewPassword } from '../client';
+import type { ApiError, NewPassword } from '../client'
 import { LoginService } from '../client'
 import useCustomToast from '../hooks/useCustomToast'
 import { useNavigate } from '@tanstack/react-router'
@@ -31,7 +31,7 @@ export function ResetPassword() {
     mode: 'onBlur',
     criteriaMode: 'all',
     defaultValues: {
-      new_password: '',
+      newPassword: '',
     },
   })
   const showToast = useCustomToast()
@@ -40,7 +40,7 @@ export function ResetPassword() {
   const resetPassword = async (data: NewPassword) => {
     const token = new URLSearchParams(window.location.search).get('token')
     await LoginService.resetPassword({
-      requestBody: { new_password: data.new_password, token: token! },
+      requestBody: { newPassword: data.newPassword, token: token! },
     })
   }
 
@@ -77,11 +77,11 @@ export function ResetPassword() {
       <Text textAlign="center">
         Please enter your new password and confirm it to reset your password.
       </Text>
-      <FormControl mt={4} isInvalid={!!errors.new_password}>
+      <FormControl mt={4} isInvalid={!!errors.newPassword}>
         <FormLabel htmlFor="password">Set Password</FormLabel>
         <Input
           id="password"
-          {...register('new_password', {
+          {...register('newPassword', {
             required: 'Password is required',
             minLength: {
               value: 8,
@@ -91,8 +91,8 @@ export function ResetPassword() {
           placeholder="Password"
           type="password"
         />
-        {errors.new_password && (
-          <FormErrorMessage>{errors.new_password.message}</FormErrorMessage>
+        {errors.newPassword && (
+          <FormErrorMessage>{errors.newPassword.message}</FormErrorMessage>
         )}
       </FormControl>
       <FormControl mt={4} isInvalid={!!errors.confirm_password}>
@@ -102,8 +102,7 @@ export function ResetPassword() {
           {...register('confirm_password', {
             required: 'Please confirm your password',
             validate: (value) =>
-              value === getValues().new_password ||
-              'The passwords do not match',
+              value === getValues().newPassword || 'The passwords do not match',
           })}
           placeholder="Password"
           type="password"

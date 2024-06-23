@@ -15,11 +15,11 @@ import {
   ModalHeader,
   ModalOverlay,
 } from '@chakra-ui/react'
-import type { SubmitHandler} from 'react-hook-form';
+import type { SubmitHandler } from 'react-hook-form'
 import { useForm } from 'react-hook-form'
 import { useMutation, useQueryClient } from 'react-query'
 
-import type { UserCreate} from '../../client';
+import type { UserCreate } from '../../client'
 import { UsersService } from '../../client'
 import type { ApiError } from '../../client/core/ApiError'
 import useCustomToast from '../../hooks/useCustomToast'
@@ -47,11 +47,11 @@ const AddUser: React.FC<AddUserProps> = ({ isOpen, onClose }) => {
     criteriaMode: 'all',
     defaultValues: {
       email: '',
-      full_name: '',
+      fullName: '',
       password: '',
       confirm_password: '',
-      is_superuser: false,
-      is_active: false,
+      isSuperuser: false,
+      isActive: false,
     },
   })
 
@@ -109,16 +109,16 @@ const AddUser: React.FC<AddUserProps> = ({ isOpen, onClose }) => {
                 <FormErrorMessage>{errors.email.message}</FormErrorMessage>
               )}
             </FormControl>
-            <FormControl mt={4} isInvalid={!!errors.full_name}>
+            <FormControl mt={4} isInvalid={!!errors.fullName}>
               <FormLabel htmlFor="name">Full name</FormLabel>
               <Input
                 id="name"
-                {...register('full_name')}
+                {...register('fullName')}
                 placeholder="Full name"
                 type="text"
               />
-              {errors.full_name && (
-                <FormErrorMessage>{errors.full_name.message}</FormErrorMessage>
+              {errors.fullName && (
+                <FormErrorMessage>{errors.fullName.message}</FormErrorMessage>
               )}
             </FormControl>
             <FormControl mt={4} isRequired isInvalid={!!errors.password}>
@@ -164,12 +164,12 @@ const AddUser: React.FC<AddUserProps> = ({ isOpen, onClose }) => {
             </FormControl>
             <Flex mt={4}>
               <FormControl>
-                <Checkbox {...register('is_superuser')} colorScheme="teal">
+                <Checkbox {...register('isSuperuser')} colorScheme="teal">
                   Is superuser?
                 </Checkbox>
               </FormControl>
               <FormControl>
-                <Checkbox {...register('is_active')} colorScheme="teal">
+                <Checkbox {...register('isActive')} colorScheme="teal">
                   Is active?
                 </Checkbox>
               </FormControl>

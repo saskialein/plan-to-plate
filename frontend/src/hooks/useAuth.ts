@@ -35,7 +35,7 @@ const useAuth = () => {
     const response = await LoginService.loginAccessToken({
       formData: data,
     })
-    localStorage.setItem('access_token', response.access_token)
+    localStorage.setItem('access_token', response.accessToken)
     navigate({ to: '/' })
   }
 
