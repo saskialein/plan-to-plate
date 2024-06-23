@@ -96,27 +96,6 @@ export function AddRecipe({ isOpen, onClose }: AddRecipeProps) {
 
     mutation.mutate(formData)
   }
-  // const onSubmit: SubmitHandler<FormValues> = (data) => {
-  //   if (!data.title) {
-  //     showToast('Title is required.', 'Please fill the title.', 'error')
-  //     return
-  //   }
-  //   if (!data.file && !data.url) {
-  //     showToast(
-  //       'File or URL is required.',
-  //       'Please fill the file or url.',
-  //       'error',
-  //     )
-  //     return
-  //   }
-
-  //   const formData: RecipeCreate = {
-  //     ...data,
-  //     file: data.file && data.file.length > 0 ? data.file[0] : undefined,
-  //   }
-
-  //   mutation.mutate(formData)
-  // }
 
   const toTitleCase = (str: string) => {
     return str.replace(/\w\S*/g, function (txt) {
