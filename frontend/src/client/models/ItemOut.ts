@@ -7,6 +7,6 @@ export type ItemOut = {
     title: string;
     description?: (string | null);
     id: number;
-    owner_id: number;
+    ownerId: number;
 };
 

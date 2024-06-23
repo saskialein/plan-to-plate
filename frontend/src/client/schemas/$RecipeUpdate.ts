@@ -20,7 +20,7 @@ export const $RecipeUpdate = {
                 type: 'null',
             }],
         },
-        file_path: {
+        filePath: {
             type: 'any-of',
             contains: [{
                 type: 'string',
@@ -36,19 +36,13 @@ export const $RecipeUpdate = {
                 type: 'null',
             }],
         },
-        store_in_vector_db: {
+        storeInVectorDb: {
             type: 'any-of',
             contains: [{
                 type: 'boolean',
             }, {
                 type: 'null',
             }],
-        },
-        comments: {
-            type: 'array',
-            contains: {
-                type: 'CommentCreate',
-            },
         },
     },
 } as const;

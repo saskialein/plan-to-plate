@@ -4,11 +4,11 @@
 /* eslint-disable */
 export const $UpdatePassword = {
     properties: {
-        current_password: {
+        currentPassword: {
             type: 'string',
             isRequired: true,
         },
-        new_password: {
+        newPassword: {
             type: 'string',
             isRequired: true,
         },

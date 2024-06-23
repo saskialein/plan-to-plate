@@ -2,23 +2,20 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export const $UserCreateOpen = {
+export const $CommentOut = {
     properties: {
-        email: {
+        content: {
             type: 'string',
             isRequired: true,
         },
-        password: {
-            type: 'string',
+        id: {
+            type: 'number',
             isRequired: true,
         },
-        fullName: {
-            type: 'any-of',
-            contains: [{
-                type: 'string',
-            }, {
-                type: 'null',
-            }],
+        createdAt: {
+            type: 'string',
+            isRequired: true,
+            format: 'date-time',
         },
     },
 } as const;

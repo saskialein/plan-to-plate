@@ -4,11 +4,11 @@
 /* eslint-disable */
 export const $Token = {
     properties: {
-        access_token: {
+        accessToken: {
             type: 'string',
             isRequired: true,
         },
-        token_type: {
+        tokenType: {
             type: 'string',
         },
     },

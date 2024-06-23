@@ -3,8 +3,9 @@
 /* tslint:disable */
 /* eslint-disable */
 
-export type UpdatePassword = {
-    currentPassword: string;
-    newPassword: string;
+export type CommentOut = {
+    content: string;
+    id: number;
+    createdAt: string;
 };
 

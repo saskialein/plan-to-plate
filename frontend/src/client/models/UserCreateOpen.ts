@@ -6,6 +6,6 @@
 export type UserCreateOpen = {
     email: string;
     password: string;
-    full_name?: (string | null);
+    fullName?: (string | null);
 };
 

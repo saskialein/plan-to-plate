@@ -2,13 +2,9 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export const $NewPassword = {
+export const $Body_recipes_add_comment = {
     properties: {
-        token: {
-            type: 'string',
-            isRequired: true,
-        },
-        newPassword: {
+        content: {
             type: 'string',
             isRequired: true,
         },

@@ -8,8 +8,9 @@ export { OpenAPI } from './core/OpenAPI';
 export type { OpenAPIConfig } from './core/OpenAPI';
 
 export type { Body_login_login_access_token } from './models/Body_login_login_access_token';
-export type { Body_recipes_create_recipe } from './models/Body_recipes_create_recipe';
+export type { Body_recipes_add_comment } from './models/Body_recipes_add_comment';
 export type { CommentCreate } from './models/CommentCreate';
+export type { CommentOut } from './models/CommentOut';
 export type { FileRequest } from './models/FileRequest';
 export type { HTTPValidationError } from './models/HTTPValidationError';
 export type { ItemCreate } from './models/ItemCreate';
@@ -36,8 +37,9 @@ export type { UserUpdateMe } from './models/UserUpdateMe';
 export type { ValidationError } from './models/ValidationError';
 
 export { $Body_login_login_access_token } from './schemas/$Body_login_login_access_token';
-export { $Body_recipes_create_recipe } from './schemas/$Body_recipes_create_recipe';
+export { $Body_recipes_add_comment } from './schemas/$Body_recipes_add_comment';
 export { $CommentCreate } from './schemas/$CommentCreate';
+export { $CommentOut } from './schemas/$CommentOut';
 export { $FileRequest } from './schemas/$FileRequest';
 export { $HTTPValidationError } from './schemas/$HTTPValidationError';
 export { $ItemCreate } from './schemas/$ItemCreate';

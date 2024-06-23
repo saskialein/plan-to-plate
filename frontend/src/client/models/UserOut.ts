@@ -5,9 +5,9 @@
 
 export type UserOut = {
     email: string;
-    is_active?: boolean;
-    is_superuser?: boolean;
-    full_name?: (string | null);
+    isActive?: boolean;
+    isSuperuser?: boolean;
+    fullName?: (string | null);
     id: number;
 };
 
