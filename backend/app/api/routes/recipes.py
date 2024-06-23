@@ -1,8 +1,8 @@
 from typing import Any, List
 from pydantic import BaseModel
-from fastapi import APIRouter, HTTPException, UploadFile, File, Form
+from fastapi import APIRouter, HTTPException, UploadFile, File, Form, Request
 from app.api.deps import CurrentUser, SessionDep
-from app.models import RecipeCreate, RecipeUpdate, RecipeOut, RecipesOut, Message, CommentCreate, Comment
+from app.models import RecipeCreate, RecipeUpdate, RecipeOut, RecipesOut, Message, CommentCreate, Comment, CommentOut
 from app import crud
 from app.utils import upload_file_to_b2, get_download_authorization, fetch_html_content, parse_open_graph_data
 from app.core.config import settings
@@ -10,34 +10,37 @@ from app.core.config import settings
 router = APIRouter()
 
 @router.post("/", response_model=RecipeOut)
-def create_recipe(
-    *,
+async def create_recipe(
+    request: Request,
     session: SessionDep,
-    title: str = Form(...),
-    url: str = Form(None),
-    file: UploadFile = File(None),
-    description: str = Form(None),
-    store_in_vector_db: bool = Form(False),
-    comment: str = Form(None),
     current_user: CurrentUser
 ) -> Any:
     """
     Create new recipe.
     """
-    if not url and not file:
-        raise HTTPException(status_code=400, detail="Either 'url' or 'file' must be provided.")
+    form = await request.form()
+    data = dict(form)
+
+    title = data.get('title')
+    url = data.get('url')
+    description = data.get('description')
+    store_in_vector_db = data.get('storeInVectorDb', False)
+    comment = data.get('comment')
     
     file_url = None
+    file: UploadFile = form.get('file')
     if file:
         # Upload the file to the bucket
         file_url = upload_file_to_b2(file.file, file.filename)
     
     recipe_in = RecipeCreate(
-        title=title, url=url, 
-        file_path=file_url, 
+        title=title,
+        url=url,
+        file_path=file_url,
         description=description,
         store_in_vector_db=store_in_vector_db,
-        comment=comment)
+        comment=comment
+    )
     
     recipe = crud.create_recipe(db=session, recipe_in=recipe_in, user_id=current_user.id)
     
@@ -140,7 +143,7 @@ async def fetch_opengraph(data: URLRequest):
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-@router.post("/{recipe_id}/comments", response_model=CommentCreate)
+@router.post("/{recipe_id}/comments", response_model=CommentOut)
 def add_comment(
     *,
     session: SessionDep,
