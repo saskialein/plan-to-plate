@@ -13,6 +13,7 @@ import {
   SkeletonText,
   Stack,
   Text,
+  useDisclosure,
 } from '@chakra-ui/react'
 import { type ApiError, RecipesService, type RecipeOut } from '../../client'
 import { useMemo } from 'react'
@@ -21,17 +22,21 @@ import { useMutation, useQueryClient } from 'react-query'
 import useCustomToast from '../../hooks/useCustomToast'
 import { FaExternalLinkAlt } from 'react-icons/fa'
 import { useFetchOpenGraphData } from '../../api/utils/getOpenGraphData'
+import { EditRecipe } from './EditRecipe'
+import { AddComment } from './AddComment'
 
 export function RecipeCard({ recipe }: { recipe: RecipeOut }) {
   const queryClient = useQueryClient()
   const showToast = useCustomToast()
+  const editRecipeModal = useDisclosure()
+  const addCommentModal = useDisclosure()
 
   const fileName = useMemo(() => {
-    if (!recipe.file_path) return null
-    const urlObj = new URL(recipe.file_path)
+    if (!recipe.filePath) return null
+    const urlObj = new URL(recipe.filePath)
     const pathname = urlObj.pathname
     return pathname.substring(pathname.lastIndexOf('/') + 1)
-  }, [recipe.file_path])
+  }, [recipe.filePath])
 
   const { data: openGraphData, isLoading: isLoadingOG } = useFetchOpenGraphData(
     recipe.url || '',
@@ -96,9 +101,20 @@ export function RecipeCard({ recipe }: { recipe: RecipeOut }) {
       </CardBody>
       <Divider />
       <CardFooter justifyContent="space-between">
-        <Button variant="ghost" colorScheme="blue" mr={4}>
+        <Button
+          onClick={addCommentModal.onOpen}
+          variant="ghost"
+          colorScheme="blue"
+          mr={4}
+        >
           Add Comment
         </Button>
+        <AddComment
+          recipeName={recipe.title}
+          recipeId={recipe.id}
+          isOpen={addCommentModal.isOpen}
+          onClose={addCommentModal.onClose}
+        />
         <ButtonGroup spacing="2">
           <Button
             variant="solid"
@@ -108,9 +124,18 @@ export function RecipeCard({ recipe }: { recipe: RecipeOut }) {
           >
             Delete
           </Button>
-          <Button variant="outline" colorScheme="blue">
+          <Button
+            onClick={editRecipeModal.onOpen}
+            variant="outline"
+            colorScheme="blue"
+          >
             Edit
           </Button>
+          <EditRecipe
+            recipe={recipe as RecipeOut}
+            isOpen={editRecipeModal.isOpen}
+            onClose={editRecipeModal.onClose}
+          />
         </ButtonGroup>
       </CardFooter>
     </Card>
