@@ -1,7 +1,6 @@
-import { type SyntheticEvent, useState } from 'react'
+import { type SyntheticEvent, useState, useEffect } from 'react'
 import {
   Box,
-  IconButton,
   VStack,
   Button,
   useDisclosure,
@@ -14,11 +13,12 @@ import {
   ModalFooter,
   Textarea,
   HStack,
+  Image,
 } from '@chakra-ui/react'
-import { ChatIcon } from '@chakra-ui/icons'
 import { useMutation } from 'react-query'
 import { type ApiError, LlmService, type ChatRequest } from '../../client'
 import useCustomToast from '../../hooks/useCustomToast'
+import chatIcon from '../../assets/images/chatCarrot.png'
 
 type ChatMessage = {
   role: 'user' | 'bot'
@@ -34,7 +34,17 @@ export function FloatingChatButton() {
   const [input, setInput] = useState('')
   const [sessionId] = useState(() => `session_${Date.now()}`)
 
-  //   const handleToggle = () => setIsOpen(!isOpen)
+  useEffect(() => {
+    if (isOpen) {
+      setMessages([
+        {
+          content:
+            "Hi! I'm Carrotina, your friendly cooking assistant. I can help you with recipes, meal planning, cooking tips, and more. How can I assist you today?",
+          role: 'bot',
+        },
+      ])
+    }
+  }, [isOpen])
 
   const mutation = useMutation(
     (data: ChatRequest) => LlmService.chatWithAi({ requestBody: data }),
@@ -47,7 +57,11 @@ export function FloatingChatButton() {
       },
       onError: (error: unknown) => {
         const errDetail = (error as ApiError).body.detail
-        showToast('Something went wrong.', `${errDetail}`, 'error')
+        showToast(
+          'Something went wrong.',
+          `${errDetail.replace(/'/g, '&apos;').replace(/"/g, '&quot;')}`,
+          'error',
+        )
       },
     },
   )
@@ -62,21 +76,20 @@ export function FloatingChatButton() {
 
   return (
     <>
-      <IconButton
-        icon={<ChatIcon />}
-        colorScheme="teal"
+      <Box
         position="fixed"
         bottom="4"
         right="4"
-        borderRadius="full"
+        zIndex="1000"
         onClick={onOpen}
-        aria-label="Chat with me"
-        zIndex={1000}
-      />
+        cursor="pointer"
+      >
+        <Image src={chatIcon} alt="Chat" boxSize="100px" />
+      </Box>
       <Modal isOpen={isOpen} onClose={onClose} size="xl" isCentered>
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>Chat with AI</ModalHeader>
+          <ModalHeader>Carrotina&apos;s Kitchen Chat</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
             <Box maxHeight="60vh" overflowY="auto">

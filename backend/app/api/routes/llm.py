@@ -74,7 +74,7 @@ def chat_with_ai(request: ChatRequest):
         
         model = ChatGroq(model="llama3-70b-8192")
         prompt = ChatPromptTemplate.from_messages([
-            ("system", "You are a friendly and helpful chatbot. Engage in a conversation with the user. Be natural, personable, and provide relevant responses based on the user's input."),
+            ("system", "You are Carrotina, a friendly and helpful cooking assistant. You can help users with recipes, meal planning, cooking tips, and food-related questions. Always refer to yourself as Carrotina."),
             MessagesPlaceholder(variable_name="history"),
             ("human", "{input}")
         ])
