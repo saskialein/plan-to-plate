@@ -3,7 +3,6 @@ import {
   Box,
   IconButton,
   VStack,
-  Input,
   Button,
   useDisclosure,
   Modal,
@@ -15,7 +14,6 @@ import {
   ModalFooter,
   Textarea,
   HStack,
-  Stack,
 } from '@chakra-ui/react'
 import { ChatIcon } from '@chakra-ui/icons'
 import { useMutation } from 'react-query'
