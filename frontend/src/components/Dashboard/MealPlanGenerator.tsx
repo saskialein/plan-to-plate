@@ -1,8 +1,8 @@
 import { Box, VStack } from '@chakra-ui/react'
 import { useMutation } from 'react-query'
-import type { ApiError, MealPlan } from '../../client';
+import type { ApiError, MealPlan } from '../../client'
 import { LlmService } from '../../client'
-import type { SyntheticEvent} from 'react';
+import type { SyntheticEvent } from 'react'
 import { useState } from 'react'
 
 import useCustomToast from '../../hooks/useCustomToast'
@@ -18,7 +18,7 @@ export const MealPlanGenerator = () => {
 
   const mutation = useMutation(
     (data: { vegetables: string[]; diets: string[] }) =>
-      LlmService.llmQuery({ requestBody: data }),
+      LlmService.generateMealPlan({ requestBody: data }),
     {
       onSuccess: (data) => {
         setResponse(data.response)
