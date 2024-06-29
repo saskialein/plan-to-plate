@@ -8,13 +8,13 @@ export const $UserCreate = {
             type: 'string',
             isRequired: true,
         },
-        is_active: {
+        isActive: {
             type: 'boolean',
         },
-        is_superuser: {
+        isSuperuser: {
             type: 'boolean',
         },
-        full_name: {
+        fullName: {
             type: 'any-of',
             contains: [{
                 type: 'string',

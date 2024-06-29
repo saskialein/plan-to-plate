@@ -2,23 +2,15 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export const $UserCreateOpen = {
+export const $ChatMessage = {
     properties: {
-        email: {
+        role: {
             type: 'string',
             isRequired: true,
         },
-        password: {
+        content: {
             type: 'string',
             isRequired: true,
-        },
-        fullName: {
-            type: 'any-of',
-            contains: [{
-                type: 'string',
-            }, {
-                type: 'null',
-            }],
         },
     },
 } as const;

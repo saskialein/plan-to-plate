@@ -2,14 +2,13 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export const $NewPassword = {
+export const $ChatHistoryModel = {
     properties: {
-        token: {
-            type: 'string',
-            isRequired: true,
-        },
-        newPassword: {
-            type: 'string',
+        messages: {
+            type: 'array',
+            contains: {
+                type: 'ChatMessage',
+            },
             isRequired: true,
         },
     },

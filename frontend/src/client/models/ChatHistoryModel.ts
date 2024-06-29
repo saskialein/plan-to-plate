@@ -3,7 +3,9 @@
 /* tslint:disable */
 /* eslint-disable */
 
-export type CommentCreate = {
-    content: string;
+import type { ChatMessage } from './ChatMessage';
+
+export type ChatHistoryModel = {
+    messages: Array<ChatMessage>;
 };
 

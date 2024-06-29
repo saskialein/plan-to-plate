@@ -1,10 +1,21 @@
 from sqlmodel import Field, Relationship, SQLModel
 from typing import List, Optional
 from datetime import datetime, timezone
+from humps import camelize
+from fastapi import UploadFile
+
+def to_camel(string):
+    return camelize(string)
+
+
+class CamelModel(SQLModel):
+    class Config:
+        alias_generator = to_camel
+        populate_by_name = True
 
 # Shared properties
 # TODO replace email str with EmailStr when sqlmodel supports it
-class UserBase(SQLModel):
+class UserBase(CamelModel):
     email: str = Field(unique=True, index=True)
     is_active: bool = True
     is_superuser: bool = False
@@ -17,7 +28,7 @@ class UserCreate(UserBase):
 
 
 # TODO replace email str with EmailStr when sqlmodel supports it
-class UserCreateOpen(SQLModel):
+class UserCreateOpen(CamelModel):
     email: str
     password: str
     full_name: str | None = None
@@ -31,12 +42,12 @@ class UserUpdate(UserBase):
 
 
 # TODO replace email str with EmailStr when sqlmodel supports it
-class UserUpdateMe(SQLModel):
+class UserUpdateMe(CamelModel):
     full_name: str | None = None
     email: str | None = None
 
 
-class UpdatePassword(SQLModel):
+class UpdatePassword(CamelModel):
     current_password: str
     new_password: str
 
@@ -56,13 +67,13 @@ class UserOut(UserBase):
     id: int
 
 
-class UsersOut(SQLModel):
+class UsersOut(CamelModel):
     data: list[UserOut]
     count: int
 
 
 # Shared properties
-class ItemBase(SQLModel):
+class ItemBase(CamelModel):
     title: str
     description: str | None = None
 
@@ -91,39 +102,39 @@ class ItemOut(ItemBase):
     owner_id: int
 
 
-class ItemsOut(SQLModel):
+class ItemsOut(CamelModel):
     data: list[ItemOut]
     count: int
 
 
 # Generic message
-class Message(SQLModel):
+class Message(CamelModel):
     message: str
 
 
 # JSON payload containing access token
-class Token(SQLModel):
+class Token(CamelModel):
     access_token: str
     token_type: str = "bearer"
 
 
 # Contents of JWT token
-class TokenPayload(SQLModel):
+class TokenPayload(CamelModel):
     sub: int | None = None
 
 
-class NewPassword(SQLModel):
+class NewPassword(CamelModel):
     token: str
     new_password: str
 
-class RecipeBase(SQLModel):
+class RecipeBase(CamelModel):
     title: str
     url: Optional[str] = None
     file_path: Optional[str] = None
     description: Optional[str] = None
     store_in_vector_db: bool = False
 
-class CommentBase(SQLModel):
+class CommentBase(CamelModel):
     content: str
 
 class CommentCreate(CommentBase):
@@ -136,15 +147,19 @@ class Comment(CommentBase, table=True):
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     recipe: Optional["Recipe"] = Relationship(back_populates="comments")
     user: Optional["User"] = Relationship(back_populates="comments")
+    
+class CommentOut(CommentBase):
+    id: int
+    created_at: datetime
 
 class RecipeCreate(RecipeBase):
-    comments: List[CommentCreate] = []
+    comment: Optional[str] = None
+
 
 class RecipeUpdate(RecipeBase):
     title: str | None = None
     description: Optional[str] = None
     store_in_vector_db: Optional[bool] = None
-    comments: List[CommentCreate] = []
 
 
 class Recipe(RecipeBase, table=True):
@@ -156,9 +171,9 @@ class Recipe(RecipeBase, table=True):
 class RecipeOut(RecipeBase):
     id: int
     owner_id: int
-    comments: List[CommentCreate] = []
+    comments: List[CommentOut] = []
 
-class RecipesOut(SQLModel):
+class RecipesOut(CamelModel):
     data: list[RecipeOut]
     count: int
 

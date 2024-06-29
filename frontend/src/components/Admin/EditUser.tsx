@@ -15,11 +15,11 @@ import {
   ModalHeader,
   ModalOverlay,
 } from '@chakra-ui/react'
-import type { SubmitHandler} from 'react-hook-form';
+import type { SubmitHandler } from 'react-hook-form'
 import { useForm } from 'react-hook-form'
 import { useMutation, useQueryClient } from 'react-query'
 
-import type { ApiError, UserOut, UserUpdate} from '../../client';
+import type { ApiError, UserOut, UserUpdate } from '../../client'
 import { UsersService } from '../../client'
 import useCustomToast from '../../hooks/useCustomToast'
 
@@ -112,7 +112,7 @@ const EditUser: React.FC<EditUserProps> = ({ user, isOpen, onClose }) => {
             </FormControl>
             <FormControl mt={4}>
               <FormLabel htmlFor="name">Full name</FormLabel>
-              <Input id="name" {...register('full_name')} type="text" />
+              <Input id="name" {...register('fullName')} type="text" />
             </FormControl>
             <FormControl mt={4} isInvalid={!!errors.password}>
               <FormLabel htmlFor="password">Set Password</FormLabel>
@@ -151,12 +151,12 @@ const EditUser: React.FC<EditUserProps> = ({ user, isOpen, onClose }) => {
             </FormControl>
             <Flex>
               <FormControl mt={4}>
-                <Checkbox {...register('is_superuser')} colorScheme="teal">
+                <Checkbox {...register('isSuperuser')} colorScheme="teal">
                   Is superuser?
                 </Checkbox>
               </FormControl>
               <FormControl mt={4}>
-                <Checkbox {...register('is_active')} colorScheme="teal">
+                <Checkbox {...register('isActive')} colorScheme="teal">
                   Is active?
                 </Checkbox>
               </FormControl>

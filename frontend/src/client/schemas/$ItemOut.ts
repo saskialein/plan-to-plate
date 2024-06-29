@@ -20,7 +20,7 @@ export const $ItemOut = {
             type: 'number',
             isRequired: true,
         },
-        owner_id: {
+        ownerId: {
             type: 'number',
             isRequired: true,
         },

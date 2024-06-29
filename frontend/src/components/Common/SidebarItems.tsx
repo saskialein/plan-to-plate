@@ -24,7 +24,7 @@ const SidebarItems: React.FC<SidebarItemsProps> = ({ onClose }) => {
   const bgActive = useColorModeValue('#E2E8F0', '#4A5568')
   const currentUser = queryClient.getQueryData<UserOut>('currentUser')
 
-  const finalItems = currentUser?.is_superuser
+  const finalItems = currentUser?.isSuperuser
     ? [...items, { icon: FiUsers, title: 'Admin', path: '/admin' }]
     : items
 

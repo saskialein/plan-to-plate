@@ -4,7 +4,7 @@
 /* eslint-disable */
 export const $UserUpdateMe = {
     properties: {
-        full_name: {
+        fullName: {
             type: 'any-of',
             contains: [{
                 type: 'string',

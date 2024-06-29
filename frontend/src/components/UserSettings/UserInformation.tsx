@@ -12,11 +12,11 @@ import {
   Text,
   useColorModeValue,
 } from '@chakra-ui/react'
-import type { SubmitHandler} from 'react-hook-form';
+import type { SubmitHandler } from 'react-hook-form'
 import { useForm } from 'react-hook-form'
 import { useMutation, useQueryClient } from 'react-query'
 
-import type { ApiError, UserOut, UserUpdateMe} from '../../client';
+import type { ApiError, UserOut, UserUpdateMe } from '../../client'
 import { UsersService } from '../../client'
 import useAuth from '../../hooks/useAuth'
 import useCustomToast from '../../hooks/useCustomToast'
@@ -37,7 +37,7 @@ const UserInformation: React.FC = () => {
     mode: 'onBlur',
     criteriaMode: 'all',
     defaultValues: {
-      full_name: currentUser?.full_name,
+      fullName: currentUser?.fullName,
       email: currentUser?.email,
     },
   })
@@ -87,7 +87,7 @@ const UserInformation: React.FC = () => {
             {editMode ? (
               <Input
                 id="name"
-                {...register('full_name', { maxLength: 30 })}
+                {...register('fullName', { maxLength: 30 })}
                 type="text"
                 size="md"
               />
@@ -95,9 +95,9 @@ const UserInformation: React.FC = () => {
               <Text
                 size="md"
                 py={2}
-                color={!currentUser?.full_name ? 'gray.400' : 'inherit'}
+                color={!currentUser?.fullName ? 'gray.400' : 'inherit'}
               >
-                {currentUser?.full_name || 'N/A'}
+                {currentUser?.fullName || 'N/A'}
               </Text>
             )}
           </FormControl>

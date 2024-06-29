@@ -68,8 +68,8 @@ export function Admin() {
                 <Tbody>
                   {users.data.map((user) => (
                     <Tr key={user.id}>
-                      <Td color={!user.full_name ? 'gray.400' : 'inherit'}>
-                        {user.full_name || 'N/A'}
+                      <Td color={!user.fullName ? 'gray.400' : 'inherit'}>
+                        {user.fullName || 'N/A'}
                         {currentUser?.id === user.id && (
                           <Badge ml="1" colorScheme="teal">
                             You
@@ -77,17 +77,17 @@ export function Admin() {
                         )}
                       </Td>
                       <Td>{user.email}</Td>
-                      <Td>{user.is_superuser ? 'Superuser' : 'User'}</Td>
+                      <Td>{user.isSuperuser ? 'Superuser' : 'User'}</Td>
                       <Td>
                         <Flex gap={2}>
                           <Box
                             w="2"
                             h="2"
                             borderRadius="50%"
-                            bg={user.is_active ? 'ui.success' : 'ui.danger'}
+                            bg={user.isActive ? 'ui.success' : 'ui.danger'}
                             alignSelf="center"
                           />
-                          {user.is_active ? 'Active' : 'Inactive'}
+                          {user.isActive ? 'Active' : 'Inactive'}
                         </Flex>
                       </Td>
                       <Td>

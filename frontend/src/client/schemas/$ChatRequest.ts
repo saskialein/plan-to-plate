@@ -2,9 +2,13 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export const $CommentCreate = {
+export const $ChatRequest = {
     properties: {
-        content: {
+        query: {
+            type: 'string',
+            isRequired: true,
+        },
+        session_id: {
             type: 'string',
             isRequired: true,
         },

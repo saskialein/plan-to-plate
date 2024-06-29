@@ -16,7 +16,7 @@ export const $RecipeOut = {
                 type: 'null',
             }],
         },
-        file_path: {
+        filePath: {
             type: 'any-of',
             contains: [{
                 type: 'string',
@@ -32,21 +32,21 @@ export const $RecipeOut = {
                 type: 'null',
             }],
         },
-        store_in_vector_db: {
+        storeInVectorDb: {
             type: 'boolean',
         },
         id: {
             type: 'number',
             isRequired: true,
         },
-        owner_id: {
+        ownerId: {
             type: 'number',
             isRequired: true,
         },
         comments: {
             type: 'array',
             contains: {
-                type: 'CommentCreate',
+                type: 'CommentOut',
             },
         },
     },

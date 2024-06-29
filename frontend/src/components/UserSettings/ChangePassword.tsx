@@ -10,11 +10,11 @@ import {
   Input,
   useColorModeValue,
 } from '@chakra-ui/react'
-import type { SubmitHandler} from 'react-hook-form';
+import type { SubmitHandler } from 'react-hook-form'
 import { useForm } from 'react-hook-form'
 import { useMutation } from 'react-query'
 
-import type { ApiError, UpdatePassword} from '../../client';
+import type { ApiError, UpdatePassword } from '../../client'
 import { UsersService } from '../../client'
 import useCustomToast from '../../hooks/useCustomToast'
 
@@ -62,27 +62,27 @@ const ChangePassword: React.FC = () => {
           Change Password
         </Heading>
         <Box w={{ sm: 'full', md: '50%' }}>
-          <FormControl isRequired isInvalid={!!errors.current_password}>
+          <FormControl isRequired isInvalid={!!errors.currentPassword}>
             <FormLabel color={color} htmlFor="current_password">
               Current password
             </FormLabel>
             <Input
               id="current_password"
-              {...register('current_password')}
+              {...register('currentPassword')}
               placeholder="Password"
               type="password"
             />
-            {errors.current_password && (
+            {errors.currentPassword && (
               <FormErrorMessage>
-                {errors.current_password.message}
+                {errors.currentPassword.message}
               </FormErrorMessage>
             )}
           </FormControl>
-          <FormControl mt={4} isRequired isInvalid={!!errors.new_password}>
+          <FormControl mt={4} isRequired isInvalid={!!errors.newPassword}>
             <FormLabel htmlFor="password">Set Password</FormLabel>
             <Input
               id="password"
-              {...register('new_password', {
+              {...register('newPassword', {
                 required: 'Password is required',
                 minLength: {
                   value: 8,
@@ -92,8 +92,8 @@ const ChangePassword: React.FC = () => {
               placeholder="Password"
               type="password"
             />
-            {errors.new_password && (
-              <FormErrorMessage>{errors.new_password.message}</FormErrorMessage>
+            {errors.newPassword && (
+              <FormErrorMessage>{errors.newPassword.message}</FormErrorMessage>
             )}
           </FormControl>
           <FormControl mt={4} isRequired isInvalid={!!errors.confirm_password}>
@@ -103,7 +103,7 @@ const ChangePassword: React.FC = () => {
               {...register('confirm_password', {
                 required: 'Please confirm your password',
                 validate: (value) =>
-                  value === getValues().new_password ||
+                  value === getValues().newPassword ||
                   'The passwords do not match',
               })}
               placeholder="Password"
