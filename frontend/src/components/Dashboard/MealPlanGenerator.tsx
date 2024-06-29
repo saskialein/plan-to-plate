@@ -12,13 +12,19 @@ import { MealPlanForm } from './MealPlanForm'
 export const MealPlanGenerator = () => {
   const [selectedDiets, setSelectedDiets] = useState<string[]>([])
   const [vegetables, setVegetables] = useState<string[]>([])
+  const [numberOfPeople, setNumberOfPeople] = useState<number>(1)
+  const [startDay, setStartDay] = useState<string>('Monday')
   const showToast = useCustomToast()
 
   const [response, setResponse] = useState<Record<string, MealPlan>>()
 
   const mutation = useMutation(
-    (data: { vegetables: string[]; diets: string[] }) =>
-      LlmService.generateMealPlan({ requestBody: data }),
+    (data: {
+      vegetables: string[]
+      diets: string[]
+      numberOfPeople: number
+      startDay: string
+    }) => LlmService.generateMealPlan({ requestBody: data }),
     {
       onSuccess: (data) => {
         setResponse(data.response)
@@ -32,16 +38,25 @@ export const MealPlanGenerator = () => {
 
   const handleQuerySubmit = (e: SyntheticEvent) => {
     e.preventDefault()
-    mutation.mutate({ vegetables, diets: selectedDiets })
+    mutation.mutate({
+      vegetables,
+      diets: selectedDiets,
+      numberOfPeople,
+      startDay,
+    })
   }
 
   return (
-    <VStack spacing={8}>
+    <VStack spacing={8} alignItems="flex-start">
       <MealPlanForm
         selectedDiets={selectedDiets}
         setSelectedDiets={setSelectedDiets}
         vegetables={vegetables}
         setVegetables={setVegetables}
+        numberOfPeople={numberOfPeople}
+        setNumberOfPeople={setNumberOfPeople}
+        startDay={startDay}
+        setStartDay={setStartDay}
         handleQuerySubmit={handleQuerySubmit}
         isLoading={mutation.isLoading}
       />

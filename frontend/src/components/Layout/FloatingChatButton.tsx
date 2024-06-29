@@ -93,13 +93,7 @@ export function FloatingChatButton() {
           <ModalCloseButton />
           <ModalBody>
             <Box maxHeight="60vh" overflowY="auto">
-              <VStack
-                spacing="4"
-                flex="1"
-                overflowY="auto"
-                // p="2"
-                borderRadius="md"
-              >
+              <VStack spacing="4" flex="1" overflowY="auto" borderRadius="md">
                 {messages.map((msg, index) => (
                   <Box
                     key={index}

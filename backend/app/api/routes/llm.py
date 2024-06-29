@@ -29,6 +29,8 @@ class MealPlan(BaseModel):
 class MealPlanRequest(BaseModel):
     diets: list[str] = Field(..., example=["Paleo", "Keto"])
     vegetables: list[str] = Field(..., example=["Carrots", "Beetroot", "Pumpkin"])
+    numberOfPeople: int = Field(..., example=2)
+    startDay: str = Field(..., example="Monday")
 
 class MealPlanResponse(BaseModel):
     response: Dict[str, MealPlan] = Field(
@@ -108,12 +110,24 @@ def generate_meal_plan(request: MealPlanRequest):
     """
     
     try:
-        diets_str = ', '.join(request.diets)
-        vegetables_str = ', '.join(request.vegetables)
-        query_str = f"Diets: {diets_str}. Vegetables: {vegetables_str}."
+        diets = ', '.join(request.diets)
+        vegetables = ', '.join(request.vegetables)
+        numberOfPeople = request.numberOfPeople
+        startDay = request.startDay
+        # query_str = f"Diets: {diets_str}. Vegetables: {vegetables_str}."
         
-        template = """You are the biggest recipe book in the world. Please help the user with creating a weekly mealplan (breakfast, lunch, dinner) based on their chosen diets.
-        It also should include the vegetables they like. 
+        template = """You are the biggest recipe book in the world. Please help the user with creating a weekly mealplan (breakfast, lunch, dinner) based on their chosen diets, which are {diets}.
+        If they didnt't specify any diets, you can assume they are omnivores.
+        It should include all the vegetables they received in their weekly vegetable box: {vegetables}. It also can include additional vegetables that are in season in New Zealand.
+        Please consider all these requirements as well:
+        - Meals are for {numberOfPeople} people.
+        - Meals should be healthy and balanced, whole & clean foods without any processed foods.
+        - Meals should have between 20g to 30g+ of protein per serve
+        - All breakfasts should be savoury except Sunday (can be sweet like porridge, waffles, etc.)
+        - Monday dinner, Wednesday breakfast and Thursday dinner should be the same soup which is made from chicken stock and mainly these vegetables: onions, carrots, celery, celery greens, and occassionally: potato mash, mushrooms, spinach, fennel.
+        - Same meals for: Sunday dinner and Monday lunch | Tuesday dinner and Wednesday lunch | Wednesday dinner and Thursday lunch
+        - The meal plan should start on {startDay}.
+        
         Please output the meal plan as JSON with the following format:
         {{
             "monday": {{
@@ -124,17 +138,15 @@ def generate_meal_plan(request: MealPlanRequest):
             "tuesday": {{
                 "...": "..."
             }}
-        }}
-        Here is their request: {request}
-        
+        }}        
         """
         # model = ChatOpenAI(model_name="gpt-3.5-turbo")
         model = ChatGroq(model="llama3-70b-8192")
         parser = JsonOutputParser()
-        prompt = PromptTemplate(template=template, input_variables=["request"])
+        prompt = PromptTemplate(template=template, input_variables=["diets", "vegetables", "numberOfPeople", "startDay"])
         chain = prompt | model | parser
 
-        response = chain.invoke({"request": query_str})
+        response = chain.invoke({"diets": diets, "vegetables": vegetables, "numberOfPeople": numberOfPeople, "startDay": startDay})
         print(response)
         return {"response": response}
     except Exception as e:
