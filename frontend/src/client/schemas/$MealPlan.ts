@@ -5,15 +5,15 @@
 export const $MealPlan = {
     properties: {
         breakfast: {
-            type: 'string',
+            type: 'Meal',
             isRequired: true,
         },
         lunch: {
-            type: 'string',
+            type: 'Meal',
             isRequired: true,
         },
         dinner: {
-            type: 'string',
+            type: 'Meal',
             isRequired: true,
         },
     },

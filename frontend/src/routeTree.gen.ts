@@ -17,9 +17,10 @@ import { Route as LoginImport } from './routes/login'
 import { Route as LayoutImport } from './routes/_layout'
 import { Route as LayoutIndexImport } from './routes/_layout/index'
 import { Route as LayoutSettingsImport } from './routes/_layout/settings'
-import { Route as LayoutRecipesImport } from './routes/_layout/recipes'
 import { Route as LayoutItemsImport } from './routes/_layout/items'
 import { Route as LayoutAdminImport } from './routes/_layout/admin'
+import { Route as LayoutRecipesIndexImport } from './routes/_layout/recipes/index'
+import { Route as LayoutRecipesRecipeIdImport } from './routes/_layout/recipes/$recipeId'
 
 // Create/Update Routes
 
@@ -53,11 +54,6 @@ const LayoutSettingsRoute = LayoutSettingsImport.update({
   getParentRoute: () => LayoutRoute,
 } as any)
 
-const LayoutRecipesRoute = LayoutRecipesImport.update({
-  path: '/recipes',
-  getParentRoute: () => LayoutRoute,
-} as any)
-
 const LayoutItemsRoute = LayoutItemsImport.update({
   path: '/items',
   getParentRoute: () => LayoutRoute,
@@ -65,6 +61,16 @@ const LayoutItemsRoute = LayoutItemsImport.update({
 
 const LayoutAdminRoute = LayoutAdminImport.update({
   path: '/admin',
+  getParentRoute: () => LayoutRoute,
+} as any)
+
+const LayoutRecipesIndexRoute = LayoutRecipesIndexImport.update({
+  path: '/recipes/',
+  getParentRoute: () => LayoutRoute,
+} as any)
+
+const LayoutRecipesRecipeIdRoute = LayoutRecipesRecipeIdImport.update({
+  path: '/recipes/$recipeId',
   getParentRoute: () => LayoutRoute,
 } as any)
 
@@ -96,16 +102,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutItemsImport
       parentRoute: typeof LayoutImport
     }
-    '/_layout/recipes': {
-      preLoaderRoute: typeof LayoutRecipesImport
-      parentRoute: typeof LayoutImport
-    }
     '/_layout/settings': {
       preLoaderRoute: typeof LayoutSettingsImport
       parentRoute: typeof LayoutImport
     }
     '/_layout/': {
       preLoaderRoute: typeof LayoutIndexImport
+      parentRoute: typeof LayoutImport
+    }
+    '/_layout/recipes/$recipeId': {
+      preLoaderRoute: typeof LayoutRecipesRecipeIdImport
+      parentRoute: typeof LayoutImport
+    }
+    '/_layout/recipes/': {
+      preLoaderRoute: typeof LayoutRecipesIndexImport
       parentRoute: typeof LayoutImport
     }
   }
@@ -117,9 +127,10 @@ export const routeTree = rootRoute.addChildren([
   LayoutRoute.addChildren([
     LayoutAdminRoute,
     LayoutItemsRoute,
-    LayoutRecipesRoute,
     LayoutSettingsRoute,
     LayoutIndexRoute,
+    LayoutRecipesRecipeIdRoute,
+    LayoutRecipesIndexRoute,
   ]),
   LoginRoute,
   RecoverPasswordRoute,

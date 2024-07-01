@@ -78,6 +78,36 @@ export function MealPlanForm({
 
   return (
     <VStack spacing={8} as="form" onSubmit={handleQuerySubmit}>
+      <HStack spacing={4} width="100%">
+        <FormControl id="numberOfPeople">
+          <FormLabel>Number of People</FormLabel>
+          <NumberInput
+            value={numberOfPeople}
+            onChange={(valueString) => setNumberOfPeople(Number(valueString))}
+            min={1}
+          >
+            <NumberInputField />
+            <NumberInputStepper>
+              <NumberIncrementStepper />
+              <NumberDecrementStepper />
+            </NumberInputStepper>
+          </NumberInput>
+        </FormControl>
+        <FormControl id="startDay">
+          <FormLabel>Start Day</FormLabel>
+          <Select
+            value={startDay}
+            onChange={(e) => setStartDay(e.target.value)}
+            placeholder="Select start day"
+          >
+            {daysOfWeek.map((day) => (
+              <option key={day} value={day}>
+                {day}
+              </option>
+            ))}
+          </Select>
+        </FormControl>
+      </HStack>
       <FormControl id="diets">
         <FormLabel>Diet(s)</FormLabel>
         <CheckboxGroup
@@ -114,36 +144,6 @@ export function MealPlanForm({
           <TagInput tags={vegetables} onTagsChange={handleTagsChange} />
         </Stack>
       </FormControl>
-      <HStack spacing={4} width="100%">
-        <FormControl id="numberOfPeople">
-          <FormLabel>Number of People</FormLabel>
-          <NumberInput
-            value={numberOfPeople}
-            onChange={(valueString) => setNumberOfPeople(Number(valueString))}
-            min={1}
-          >
-            <NumberInputField />
-            <NumberInputStepper>
-              <NumberIncrementStepper />
-              <NumberDecrementStepper />
-            </NumberInputStepper>
-          </NumberInput>
-        </FormControl>
-        <FormControl id="startDay">
-          <FormLabel>Start Day</FormLabel>
-          <Select
-            value={startDay}
-            onChange={(e) => setStartDay(e.target.value)}
-            placeholder="Select start day"
-          >
-            {daysOfWeek.map((day) => (
-              <option key={day} value={day}>
-                {day}
-              </option>
-            ))}
-          </Select>
-        </FormControl>
-      </HStack>
       <Button
         colorScheme="teal"
         type="submit"

@@ -3,9 +3,11 @@
 /* tslint:disable */
 /* eslint-disable */
 
+import type { Meal } from './Meal';
+
 export type MealPlan = {
-    breakfast: string;
-    lunch: string;
-    dinner: string;
+    breakfast: Meal;
+    lunch: Meal;
+    dinner: Meal;
 };
 

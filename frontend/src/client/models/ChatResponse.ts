@@ -3,10 +3,10 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import type { ChatHistoryModel } from './ChatHistoryModel';
+import type { ChatMessage } from './ChatMessage';
 
 export type ChatResponse = {
     response: string;
-    history: ChatHistoryModel;
+    history: Array<ChatMessage>;
 };
 

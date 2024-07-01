@@ -18,5 +18,13 @@ export const $MealPlanRequest = {
             },
             isRequired: true,
         },
+        numberOfPeople: {
+            type: 'number',
+            isRequired: true,
+        },
+        startDay: {
+            type: 'string',
+            isRequired: true,
+        },
     },
 } as const;

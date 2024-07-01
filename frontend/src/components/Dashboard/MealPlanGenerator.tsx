@@ -12,11 +12,13 @@ import { MealPlanForm } from './MealPlanForm'
 export const MealPlanGenerator = () => {
   const [selectedDiets, setSelectedDiets] = useState<string[]>([])
   const [vegetables, setVegetables] = useState<string[]>([])
-  const [numberOfPeople, setNumberOfPeople] = useState<number>(1)
-  const [startDay, setStartDay] = useState<string>('Monday')
+  const [numberOfPeople, setNumberOfPeople] = useState<number>(2)
+  const [startDay, setStartDay] = useState<string>('Saturday')
   const showToast = useCustomToast()
 
-  const [response, setResponse] = useState<Record<string, MealPlan>>()
+  const [response, setResponse] = useState<
+    Record<string, MealPlan> | undefined
+  >(undefined)
 
   const mutation = useMutation(
     (data: {
@@ -26,8 +28,8 @@ export const MealPlanGenerator = () => {
       startDay: string
     }) => LlmService.generateMealPlan({ requestBody: data }),
     {
-      onSuccess: (data) => {
-        setResponse(data.response)
+      onSuccess: ({ response }) => {
+        setResponse(response as Record<string, MealPlan>)
       },
       onError: (error: unknown) => {
         const errDetail = (error as ApiError).body.detail
