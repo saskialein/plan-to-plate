@@ -80,7 +80,7 @@ export function MealPlanForm({
     <VStack spacing={8} as="form" onSubmit={handleQuerySubmit}>
       <HStack spacing={4} width="100%">
         <FormControl id="numberOfPeople">
-          <FormLabel>Number of People</FormLabel>
+          <FormLabel>Number of Eaters</FormLabel>
           <NumberInput
             value={numberOfPeople}
             onChange={(valueString) => setNumberOfPeople(Number(valueString))}
@@ -94,7 +94,7 @@ export function MealPlanForm({
           </NumberInput>
         </FormControl>
         <FormControl id="startDay">
-          <FormLabel>Start Day</FormLabel>
+          <FormLabel>Plan Start Day</FormLabel>
           <Select
             value={startDay}
             onChange={(e) => setStartDay(e.target.value)}

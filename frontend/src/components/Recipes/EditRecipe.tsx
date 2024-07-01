@@ -39,7 +39,7 @@ export function EditRecipe({ recipe, isOpen, onClose }: EditRecipeProps) {
     register,
     handleSubmit,
     reset,
-    formState: { isSubmitting, errors, isDirty },
+    formState: { isSubmitting, errors },
   } = useForm<RecipeUpdate>({
     mode: 'onBlur',
     criteriaMode: 'all',
@@ -127,8 +127,7 @@ export function EditRecipe({ recipe, isOpen, onClose }: EditRecipeProps) {
             <Button
               variant="primary"
               type="submit"
-              isLoading={isSubmitting}
-              isDisabled={!isDirty}
+              isLoading={isSubmitting || mutation.isLoading}
             >
               Save
             </Button>
