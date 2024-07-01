@@ -10,7 +10,7 @@ from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain_core.chat_history import BaseChatMessageHistory
 from langchain_community.chat_message_histories import ChatMessageHistory
 
-from backend.app.core.vector_db_services import query_vector_db
+from app.core.vector_db_services import query_vector_db
 
 router = APIRouter()
 
@@ -151,24 +151,27 @@ def generate_meal_plan(request: MealPlanRequest):
         
         print(f"Recipes Str: {recipes_str}")
               
-        template = """You are the biggest recipe book in the world. Please help the user with creating a weekly mealplan (breakfast, lunch, dinner) based on their chosen diets, which are {diets}.
-        If they didnt't specify any diets, you can assume they are omnivores.
-        It should include all the vegetables they received in their weekly vegetable box: {vegetables}. It also can include additional vegetables that are in season in New Zealand.
-        Please consider all these requirements as well:
-        - Meals are for {numberOfPeople} people.
-        - Meals should be healthy and balanced, whole & clean foods without any processed foods.
-        - Meals should have between 20g to 30g+ of protein per serve
-        - All breakfasts should be savoury except Sunday (can be sweet like porridge, waffles, etc.)
-        - Monday dinner, Wednesday breakfast and Thursday dinner should be the same soup which is made from chicken stock and mainly these vegetables: onions, carrots, celery, celery greens, and occassionally: potato mash, mushrooms, spinach, fennel.
-        - Same meals for: Sunday dinner and Monday lunch | Tuesday dinner and Wednesday lunch | Wednesday dinner and Thursday lunch
-        - The meal plan should start on {startDay}.
+        template = """
+        You are the world's most comprehensive recipe book. Please help the user create a weekly meal plan (breakfast, lunch, dinner) based on their chosen diets: {diets}.
+        If no diets are specified, assume they are omnivores.
         
-        Additionally, here are some recipes you can use if they match one or more of the vegetables:
+        The meal plan should include the following vegetables: {vegetables}. Additional vegetables in season in New Zealand can also be included.
+        
+        Consider these requirements:
+        - The meal plan should start on {startDay}.
+        - Meals are for {numberOfPeople} people.
+        - Meals should be healthy, balanced, whole, and clean foods without any processed foods.
+        - Each meal should have 20-30g+ of protein per serving.
+        - All breakfasts should be savory except Sunday, which can be sweet (e.g., porridge, waffles).
+        - Include a chicken stock soup on 3 times a week: Monday dinner, Wednesday breakfast, and Thursday dinner. The soup always has these ingredients: onions, carrots, celery, celery greens, and occasionally potato mash, mushrooms, spinach, and fennel. Do not include another chicken stock soup anywhere else in the meal plan.
+        - Reuse meals: Sunday dinner and Monday lunch should be the same; Tuesday dinner and Wednesday lunch should be the same; Wednesday dinner and Thursday lunch should be the same. Monday breakfast and Thursday breakfast should be the same. Tuesday breakfast and Friday breakfast should be the same. These reused meals should have exactly the same complete details (title, ingredients and recipe steps) each time they are mentioned.
+        
+        Additionally, here are some recipes you can use if they match one or more of the vegetables and diets provided:
         {recipes}
         
-        When you use a recipe from the provided list, please include the URL or file path. If the recipe is not from the provided list, please include the ingredients and recipe steps.
+        When you use a recipe from the provided list, please include the URL. If the recipe is not from the provided list, please include the ingredients and recipe steps.
         
-        Please output the meal plan as JSON with the following format:
+        Please output the meal plan as JSON with the following format, replacing the example recipes with real recipes:
         {{
             "monday": {{
                 "breakfast": {{"recipe": "Oatmeal with fruits", "url": "https://example.com/recipe1"}},
