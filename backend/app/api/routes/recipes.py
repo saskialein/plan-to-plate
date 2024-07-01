@@ -104,6 +104,15 @@ def update_recipe(
     if recipe.owner_id != current_user.id:
         raise HTTPException(status_code=403, detail="Not enough permissions")
     recipe = crud.update_recipe(db=session, db_recipe=recipe, recipe_in=recipe_in)
+    if recipe_in.store_in_vector_db:
+        source = recipe.url if recipe.url else recipe.file_path
+        metadata = {
+            'title': recipe.title,
+            'source': source,
+            'language': 'en',
+        }
+        process_and_store_in_vector_db(file_path=recipe.file_path, url=recipe.url, metadata=metadata)
+    
     return recipe
 
 @router.delete("/{recipe_id}")
