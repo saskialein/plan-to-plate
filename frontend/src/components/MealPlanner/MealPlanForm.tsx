@@ -121,6 +121,7 @@ export function MealPlanForm({
                   isChecked={selectedDiets.includes(diet)}
                   size="lg"
                   value={diet}
+                  colorScheme="teal"
                 >
                   {diet}
                 </Checkbox>
