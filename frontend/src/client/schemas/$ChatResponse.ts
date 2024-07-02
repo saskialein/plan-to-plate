@@ -9,7 +9,10 @@ export const $ChatResponse = {
             isRequired: true,
         },
         history: {
-            type: 'ChatHistoryModel',
+            type: 'array',
+            contains: {
+                type: 'ChatMessage',
+            },
             isRequired: true,
         },
     },

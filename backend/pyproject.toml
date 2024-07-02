@@ -34,6 +34,12 @@ beautifulsoup4 = "^4.12.3"
 aiohttp = "^3.9.5"
 pyhumps = "^3.8.0"
 langchain-community = "^0.2.6"
+transformers = "^4.42.3"
+langchain-text-splitters = "^0.2.2"
+langchain-postgres = "^0.0.9"
+torch = "^2.3.1"
+sentence-transformers = "^3.0.1"
+langfuse = "^2.36.2"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.4.3"

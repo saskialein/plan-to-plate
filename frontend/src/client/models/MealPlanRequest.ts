@@ -6,5 +6,7 @@
 export type MealPlanRequest = {
     diets: Array<string>;
     vegetables: Array<string>;
+    numberOfPeople: number;
+    startDay: string;
 };
 

@@ -6,6 +6,7 @@ from app.models import RecipeCreate, RecipeUpdate, RecipeOut, RecipesOut, Messag
 from app import crud
 from app.utils import upload_file_to_b2, get_download_authorization, fetch_html_content, parse_open_graph_data
 from app.core.config import settings
+from app.core.vector_db_services import process_and_store_in_vector_db
 
 router = APIRouter()
 
@@ -44,7 +45,15 @@ async def create_recipe(
     
     recipe = crud.create_recipe(db=session, recipe_in=recipe_in, user_id=current_user.id)
     
-    # TODO: Add logic to store recipe in vector database
+    if store_in_vector_db:
+        source = url if url else file_url
+        metadata = {
+            'title': title,
+            'source': source,  # Use source for both URL and file_path
+            'language': 'en',
+        }
+        process_and_store_in_vector_db(file_path=file_url, url=url, metadata=metadata)
+        
     print("Created Recipe:", recipe)
     return recipe
 
@@ -95,6 +104,15 @@ def update_recipe(
     if recipe.owner_id != current_user.id:
         raise HTTPException(status_code=403, detail="Not enough permissions")
     recipe = crud.update_recipe(db=session, db_recipe=recipe, recipe_in=recipe_in)
+    if recipe_in.store_in_vector_db:
+        source = recipe.url if recipe.url else recipe.file_path
+        metadata = {
+            'title': recipe.title,
+            'source': source,
+            'language': 'en',
+        }
+        process_and_store_in_vector_db(file_path=recipe.file_path, url=recipe.url, metadata=metadata)
+    
     return recipe
 
 @router.delete("/{recipe_id}")

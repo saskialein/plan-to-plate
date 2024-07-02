@@ -250,7 +250,11 @@ export function AddRecipe({ isOpen, onClose }: AddRecipeProps) {
         </ModalBody>
 
         <ModalFooter gap={3}>
-          <Button variant="primary" type="submit" isLoading={isSubmitting}>
+          <Button
+            variant="primary"
+            type="submit"
+            isLoading={isSubmitting || mutation.isLoading}
+          >
             Save
           </Button>
           <Button onClick={handleClose}>Cancel</Button>

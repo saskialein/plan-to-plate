@@ -1,15 +1,16 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
-from typing import Dict, List
+from typing import Dict, List, Optional
 from langchain_openai import ChatOpenAI
 from langchain_groq import ChatGroq
 from langchain_core.messages import HumanMessage, AIMessage
 from langchain_core.prompts import PromptTemplate, ChatPromptTemplate, MessagesPlaceholder
-# from langchain_core.output_parsers import StrOutputParser
 from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain_core.chat_history import BaseChatMessageHistory
 from langchain_community.chat_message_histories import ChatMessageHistory
+
+from app.core.vector_db_services import query_vector_db
 
 router = APIRouter()
 
@@ -21,38 +22,59 @@ def get_session_history(session_id: str) -> BaseChatMessageHistory:
         store[session_id] = ChatMessageHistory()
     return store[session_id]
 
-class MealPlan(BaseModel):
-    breakfast: str
-    lunch: str
-    dinner: str
+class Meal(BaseModel):
+    recipe: str
+    url: Optional[str] = None
+    ingredients: Optional[List[str]] = None
+    recipe_steps: Optional[List[str]] = None
 
-class MealPlanRequest(BaseModel):
-    diets: list[str] = Field(..., example=["Paleo", "Keto"])
-    vegetables: list[str] = Field(..., example=["Carrots", "Beetroot", "Pumpkin"])
-    numberOfPeople: int = Field(..., example=2)
-    startDay: str = Field(..., example="Monday")
+class MealPlan(BaseModel):
+    breakfast: Meal
+    lunch: Meal
+    dinner: Meal
 
 class MealPlanResponse(BaseModel):
     response: Dict[str, MealPlan] = Field(
         ...,
         example={
             "monday": {
-                "breakfast": "Sweet potato hash with eggs",
-                "lunch": "Grilled chicken with roasted carrots",
-                "dinner": "Butternut squash soup"
+                "breakfast": {
+                    "recipe": "Sweet potato hash with eggs",
+                    "url": "https://example.com/recipe1"
+                },
+                "lunch": {
+                    "recipe": "Grilled chicken with roasted carrots",
+                    "url": "https://example.com/recipe2"
+                },
+                "dinner": {
+                    "recipe": "Butternut squash soup",
+                    "ingredients": ["2 cups butternut squash", "1 onion", "2 cups chicken broth"],
+                    "recipe_steps": ["1. Prepare ingredients.", "2. Cook the squash.", "3. Blend and serve."]
+                }
             },
             "tuesday": {
-                "breakfast": "Lettuce wraps with turkey and avocado",
-                "lunch": "Butternut squash and chicken curry",
-                "dinner": "Grilled salmon with roasted radicchio"
-            },
-            "wednesday": {
-                "breakfast": "Carrot and apple smoothie",
-                "lunch": "Paleo lettuce tacos with ground turkey",
-                "dinner": "Grilled steak with roasted butternut squash"
+                "breakfast": {
+                    "recipe": "Lettuce wraps with turkey and avocado",
+                    "url": "https://example.com/recipe4"
+                },
+                "lunch": {
+                    "recipe": "Butternut squash and chicken curry",
+                    "url": "https://example.com/recipe5"
+                },
+                "dinner": {
+                    "recipe": "Grilled salmon with roasted radicchio",
+                    "ingredients": ["1 salmon fillet", "1 radicchio", "1 tbsp olive oil"],
+                    "recipe_steps": ["1. Prepare ingredients.", "2. Grill the salmon.", "3. Serve with radicchio."]
+                }
             }
         },
     )
+
+class MealPlanRequest(BaseModel):
+    diets: List[str] = Field(..., example=["Paleo", "Keto"])
+    vegetables: List[str] = Field(..., example=["Carrots", "Beetroot", "Pumpkin"])
+    numberOfPeople: int = Field(..., example=2)
+    startDay: str = Field(..., example="Monday")
 
 class ChatMessage(BaseModel):
     role: str = Field(..., example="user")
@@ -111,43 +133,104 @@ def generate_meal_plan(request: MealPlanRequest):
     
     try:
         diets = ', '.join(request.diets)
-        vegetables = ', '.join(request.vegetables)
+        vegetables = request.vegetables
         numberOfPeople = request.numberOfPeople
         startDay = request.startDay
-        # query_str = f"Diets: {diets_str}. Vegetables: {vegetables_str}."
+        matching_recipes = query_vector_db(vegetables)  
         
-        template = """You are the biggest recipe book in the world. Please help the user with creating a weekly mealplan (breakfast, lunch, dinner) based on their chosen diets, which are {diets}.
-        If they didnt't specify any diets, you can assume they are omnivores.
-        It should include all the vegetables they received in their weekly vegetable box: {vegetables}. It also can include additional vegetables that are in season in New Zealand.
-        Please consider all these requirements as well:
-        - Meals are for {numberOfPeople} people.
-        - Meals should be healthy and balanced, whole & clean foods without any processed foods.
-        - Meals should have between 20g to 30g+ of protein per serve
-        - All breakfasts should be savoury except Sunday (can be sweet like porridge, waffles, etc.)
-        - Monday dinner, Wednesday breakfast and Thursday dinner should be the same soup which is made from chicken stock and mainly these vegetables: onions, carrots, celery, celery greens, and occassionally: potato mash, mushrooms, spinach, fennel.
-        - Same meals for: Sunday dinner and Monday lunch | Tuesday dinner and Wednesday lunch | Wednesday dinner and Thursday lunch
+        recipes_data = [
+            {"title": recipe['title'], "url": recipe['url']}
+            for recipe in matching_recipes
+        ]
+        
+        print(f"Recipes Data: {recipes_data}")
+
+        recipes_str = "\n".join(
+            [f"- Title: {recipe['title']}, URL: {recipe['url']}" for recipe in recipes_data]
+        )
+        
+        print(f"Recipes Str: {recipes_str}")
+              
+        template = """
+        You are the world's most comprehensive recipe book. Please help the user create a weekly meal plan (breakfast, lunch, dinner) based on their chosen diets: {diets}.
+        If no diets are specified, assume they are omnivores.
+        
+        The meal plan should include the following vegetables: {vegetables}. Additional vegetables in season in New Zealand can also be included.
+        
+        Consider these requirements:
         - The meal plan should start on {startDay}.
+        - Meals are for {numberOfPeople} people.
+        - Meals should be healthy, balanced, whole, and clean foods without any processed foods.
+        - Each meal should have 20-30g+ of protein per serving.
+        - All breakfasts should be savory except Sunday, which can be sweet (e.g., porridge, waffles).
+        - Include a chicken stock soup on 3 times a week: Monday dinner, Wednesday breakfast, and Thursday dinner. The soup always has these ingredients: onions, carrots, celery, celery greens, and occasionally potato mash, mushrooms, spinach, and fennel. Do not include another chicken stock soup anywhere else in the meal plan.
+        - Reuse meals: Sunday dinner and Monday lunch should be the same; Tuesday dinner and Wednesday lunch should be the same; Wednesday dinner and Thursday lunch should be the same. Monday breakfast and Thursday breakfast should be the same. Tuesday breakfast and Friday breakfast should be the same. These reused meals should have exactly the same complete details (title, ingredients and recipe steps) each time they are mentioned.
         
-        Please output the meal plan as JSON with the following format:
+        Additionally, here are some recipes you can use if they match one or more of the vegetables and diets provided:
+        {recipes}
+        
+        When you use a recipe from the provided list, please include the URL. If the recipe is not from the provided list, please include the ingredients and recipe steps.
+        
+        Please output the meal plan as JSON with the following format, replacing the example recipes with real recipes:
         {{
             "monday": {{
-                "breakfast": "Oatmeal with fruits",
-                "lunch": "Chicken salad",
-                "dinner": "Grilled salmon"
+                "breakfast": {{"recipe": "Oatmeal with fruits", "url": "https://example.com/recipe1"}},
+                "lunch": {{"recipe": "Chicken salad", "url": "https://example.com/recipe2"}},
+                "dinner": {{"recipe": "Grilled salmon", "url": "https://example.com/recipe3"}}
             }},
             "tuesday": {{
-                "...": "..."
+                "breakfast": {{"recipe": "Avocado toast", "url": "https://example.com/recipe4"}},
+                "lunch": {{"recipe": "Quinoa bowl", "url": "https://example.com/recipe5"}},
+                "dinner": {{"recipe": "Vegetable stir-fry", "ingredients": ["1 cup broccoli", "1 cup bell peppers", "1 tbsp soy sauce"], "recipe_steps": ["1. Prepare ingredients.", "2. Stir-fry vegetables.", "3. Serve hot."]}}
             }}
+            // ... other days
         }}        
         """
-        # model = ChatOpenAI(model_name="gpt-3.5-turbo")
+         # model = ChatOpenAI(model_name="gpt-3.5-turbo")
         model = ChatGroq(model="llama3-70b-8192")
         parser = JsonOutputParser()
-        prompt = PromptTemplate(template=template, input_variables=["diets", "vegetables", "numberOfPeople", "startDay"])
+        prompt = PromptTemplate(template=template, input_variables=["diets", "vegetables", "numberOfPeople", "startDay", "recipes"])
         chain = prompt | model | parser
+        
+        response = chain.invoke({
+            "diets": diets,  
+            "vegetables": ', '.join(vegetables), 
+            "numberOfPeople": numberOfPeople, 
+            "startDay": startDay, 
+            "recipes": recipes_str
+        })
+ 
+        meal_plan = response
+        # TODO: Fix the issue with the response JSON (no file paths and same meals for dinner/lunches)
+        for day, meals in meal_plan.items():
+            for meal_type, meal in meals.items():
+                # Check if the recipe is from the vector store
+                for recipe in recipes_data:
+                    if recipe['title'] in meal['recipe']:
+                        meal['url'] = recipe['url']
+                        meal.pop('ingredients', None)
+                        meal.pop('recipe_steps', None)
+                        break
 
-        response = chain.invoke({"diets": diets, "vegetables": vegetables, "numberOfPeople": numberOfPeople, "startDay": startDay})
-        print(response)
-        return {"response": response}
+        return {"response": meal_plan}
     except Exception as e:
+        print(f"Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+    
+def generate_full_recipe_from_llm(recipe_title):
+    template = f"""
+    You are the biggest recipe book in the world. Please provide a detailed recipe for the following dish: {recipe_title}.
+    Include the ingredients and step-by-step instructions.
+    """
+    model = ChatGroq(model="llama3-70b-8192")
+    response = model(template)
+    
+    # Parse the response to extract ingredients and steps
+    response_data = response.split("Ingredients:")[1].split("Steps:")
+    ingredients = response_data[0].strip().split("\n")
+    steps = response_data[1].strip().split("\n")
+
+    return {
+        "ingredients": ingredients,
+        "recipe_steps": steps
+    }

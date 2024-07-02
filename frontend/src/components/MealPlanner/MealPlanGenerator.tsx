@@ -1,4 +1,4 @@
-import { Box, VStack } from '@chakra-ui/react'
+import { Box, Flex, Spinner, VStack } from '@chakra-ui/react'
 import { useMutation } from 'react-query'
 import type { ApiError, MealPlan } from '../../client'
 import { LlmService } from '../../client'
@@ -12,11 +12,13 @@ import { MealPlanForm } from './MealPlanForm'
 export const MealPlanGenerator = () => {
   const [selectedDiets, setSelectedDiets] = useState<string[]>([])
   const [vegetables, setVegetables] = useState<string[]>([])
-  const [numberOfPeople, setNumberOfPeople] = useState<number>(1)
-  const [startDay, setStartDay] = useState<string>('Monday')
+  const [numberOfPeople, setNumberOfPeople] = useState<number>(2)
+  const [startDay, setStartDay] = useState<string>('Saturday')
   const showToast = useCustomToast()
 
-  const [response, setResponse] = useState<Record<string, MealPlan>>()
+  const [response, setResponse] = useState<
+    Record<string, MealPlan> | undefined
+  >(undefined)
 
   const mutation = useMutation(
     (data: {
@@ -26,8 +28,8 @@ export const MealPlanGenerator = () => {
       startDay: string
     }) => LlmService.generateMealPlan({ requestBody: data }),
     {
-      onSuccess: (data) => {
-        setResponse(data.response)
+      onSuccess: ({ response }) => {
+        setResponse(response as Record<string, MealPlan>)
       },
       onError: (error: unknown) => {
         const errDetail = (error as ApiError).body.detail
@@ -60,6 +62,11 @@ export const MealPlanGenerator = () => {
         handleQuerySubmit={handleQuerySubmit}
         isLoading={mutation.isLoading}
       />
+      {mutation.isLoading && (
+        <Flex justify="center" align="center" height="100vh" width="full">
+          <Spinner size="xl" color="ui.main" />
+        </Flex>
+      )}{' '}
       {response && (
         <Box mt={4}>
           <MealPlanTable plan={response} />
