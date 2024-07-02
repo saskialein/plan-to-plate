@@ -1,4 +1,4 @@
-import { Box, VStack } from '@chakra-ui/react'
+import { Box, Flex, Spinner, VStack } from '@chakra-ui/react'
 import { useMutation } from 'react-query'
 import type { ApiError, MealPlan } from '../../client'
 import { LlmService } from '../../client'
@@ -62,6 +62,11 @@ export const MealPlanGenerator = () => {
         handleQuerySubmit={handleQuerySubmit}
         isLoading={mutation.isLoading}
       />
+      {mutation.isLoading && (
+        <Flex justify="center" align="center" height="100vh" width="full">
+          <Spinner size="xl" color="ui.main" />
+        </Flex>
+      )}{' '}
       {response && (
         <Box mt={4}>
           <MealPlanTable plan={response} />
