@@ -2,7 +2,9 @@ from sqlmodel import Field, Relationship, SQLModel
 from typing import List, Optional
 from datetime import datetime, timezone
 from humps import camelize
-from fastapi import UploadFile
+from datetime import date
+from pydantic import BaseModel
+from sqlalchemy import JSON, Column, ARRAY, String
 
 def to_camel(string):
     return camelize(string)
@@ -59,8 +61,7 @@ class User(UserBase, table=True):
     items: list["Item"] = Relationship(back_populates="owner")
     recipes: List["Recipe"] = Relationship(back_populates="owner")
     comments: List["Comment"] = Relationship(back_populates="user")
-
-
+    meal_plans: List["MealPlan"] = Relationship(back_populates="owner")
 
 # Properties to return via API, id is always required
 class UserOut(UserBase):
@@ -133,6 +134,8 @@ class RecipeBase(CamelModel):
     file_path: Optional[str] = None
     description: Optional[str] = None
     store_in_vector_db: bool = False
+    categories: List[str] = Field(default_factory=list)
+
 
 class CommentBase(CamelModel):
     content: str
@@ -160,6 +163,8 @@ class RecipeUpdate(RecipeBase):
     title: str | None = None
     description: Optional[str] = None
     store_in_vector_db: Optional[bool] = None
+    categories: List[str] = Field(default_factory=list)
+
 
 
 class Recipe(RecipeBase, table=True):
@@ -167,6 +172,7 @@ class Recipe(RecipeBase, table=True):
     owner_id: int | None = Field(default=None, foreign_key="user.id", nullable=False)
     owner: User | None = Relationship(back_populates="recipes")
     comments: List[Comment] = Relationship(back_populates="recipe")
+    categories: List[str] = Field(default_factory=list, sa_column=Column(ARRAY(String))) 
 
 class RecipeOut(RecipeBase):
     id: int
@@ -177,3 +183,48 @@ class RecipesOut(CamelModel):
     data: list[RecipeOut]
     count: int
 
+class Meal(BaseModel):
+    recipe: str
+    url: Optional[str] = None
+    ingredients: Optional[List[str]] = None
+    recipe_steps: Optional[List[str]] = None
+
+class MealPlan(BaseModel):
+    breakfast: Meal
+    lunch: Meal
+    dinner: Meal
+    
+class WeekMealPlan(BaseModel):
+    monday: MealPlan
+    tuesday: MealPlan
+    wednesday: MealPlan
+    thursday: MealPlan
+    friday: MealPlan
+    saturday: MealPlan
+    sunday: MealPlan
+
+
+class MealPlanBase(CamelModel):
+    plan: WeekMealPlan = Field(sa_column=Column(JSON))
+    start_date: date
+
+class MealPlanCreate(MealPlanBase):
+    pass
+
+class MealPlanUpdate(MealPlanBase):
+    plan: Optional[WeekMealPlan] = Field(sa_column=Column(JSON))
+    start_date: Optional[date] = None
+
+class MealPlan(MealPlanBase, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    owner_id: int | None = Field(default=None, foreign_key="user.id", nullable=False)
+    owner: User | None = Relationship(back_populates="meal_plans")
+    plan: dict = Field(sa_column=Column(JSON))
+
+class MealPlanOut(MealPlanBase):
+    id: int
+    owner_id: int
+
+class MealPlansOut(CamelModel):
+    data: list[MealPlanOut]
+    count: int
