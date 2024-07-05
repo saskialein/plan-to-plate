@@ -3,9 +3,9 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import type { MealPlan } from './MealPlan';
+import type { app__api__routes__llm__WeekMealPlan } from './app__api__routes__llm__WeekMealPlan';
 
 export type MealPlanResponse = {
-    response: Record<string, MealPlan>;
+    response: app__api__routes__llm__WeekMealPlan;
 };
 

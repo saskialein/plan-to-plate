@@ -9,5 +9,6 @@ export type RecipeUpdate = {
     filePath?: (string | null);
     description?: (string | null);
     storeInVectorDb?: (boolean | null);
+    categories?: Array<string>;
 };
 

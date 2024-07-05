@@ -43,9 +43,11 @@ export class RecipesService {
   public static readRecipes({
     skip,
     limit = 100,
+    categories,
   }: {
     skip?: number
     limit?: number
+    categories?: Array<string>
   }): CancelablePromise<RecipesOut> {
     return __request(OpenAPI, {
       method: 'GET',
@@ -53,6 +55,7 @@ export class RecipesService {
       query: {
         skip: skip,
         limit: limit,
+        categories: categories,
       },
       errors: {
         422: `Validation Error`,

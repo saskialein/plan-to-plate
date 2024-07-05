@@ -35,6 +35,12 @@ export const $RecipeOut = {
         storeInVectorDb: {
             type: 'boolean',
         },
+        categories: {
+            type: 'array',
+            contains: {
+                type: 'string',
+            },
+        },
         id: {
             type: 'number',
             isRequired: true,

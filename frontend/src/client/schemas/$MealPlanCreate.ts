@@ -2,11 +2,16 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export const $MealPlanResponse = {
+export const $MealPlanCreate = {
     properties: {
-        response: {
-            type: 'app__api__routes__llm__WeekMealPlan',
+        plan: {
+            type: 'WeekMealPlan_Input',
             isRequired: true,
+        },
+        startDate: {
+            type: 'string',
+            isRequired: true,
+            format: 'date',
         },
     },
 } as const;

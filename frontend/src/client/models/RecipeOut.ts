@@ -11,6 +11,7 @@ export type RecipeOut = {
     filePath?: (string | null);
     description?: (string | null);
     storeInVectorDb?: boolean;
+    categories?: Array<string>;
     id: number;
     ownerId: number;
     comments?: Array<CommentOut>;

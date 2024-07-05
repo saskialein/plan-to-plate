@@ -44,5 +44,11 @@ export const $RecipeUpdate = {
                 type: 'null',
             }],
         },
+        categories: {
+            type: 'array',
+            contains: {
+                type: 'string',
+            },
+        },
     },
 } as const;
