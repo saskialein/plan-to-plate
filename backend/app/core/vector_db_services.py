@@ -5,6 +5,7 @@ from langchain_community.embeddings import HuggingFaceBgeEmbeddings
 from langchain_postgres.vectorstores import PGVector
 from langchain.indexes import SQLRecordManager, index
 import os
+import psycopg2
 
 EMBEDDING_MODEL_NAME = "BAAI/bge-small-en-v1.5"
 EMBEDDING_MODEL_KWARGS = {'device': 'cpu'}
@@ -18,6 +19,14 @@ def get_connection_string():
         port=5432,
         user=os.getenv('POSTGRES_USER', 'postgres'),
         password=os.getenv('POSTGRES_PASSWORD', 'password'),
+    )
+    
+def get_psycopg_connection_string():
+    return (
+        f"dbname='{os.getenv('POSTGRES_DB', 'postgres')}' "
+        f"user='{os.getenv('POSTGRES_USER', 'postgres')}' "
+        f"host='{os.getenv('POSTGRES_HOST', 'db')}' "
+        f"password='{os.getenv('POSTGRES_PASSWORD', 'password')}'"
     )
 
 tokenizer = AutoTokenizer.from_pretrained(EMBEDDING_MODEL_NAME)
@@ -66,7 +75,7 @@ def store_embeddings(chunks, embedding_function, metadata):
     result = index(chunks, record_manager, vectorstore, cleanup=None, source_id_key="source")
     print(result)
 
-def process_and_store_in_vector_db(file_path=None, url=None, metadata=None):
+def process_and_store_in_vector_db(file_path=None, url=None, metadata=None, recipe_id=None):
     embedding_function = get_embedding_function()
     if file_path:
         if file_path.endswith('.pdf'):
@@ -79,6 +88,10 @@ def process_and_store_in_vector_db(file_path=None, url=None, metadata=None):
     elif url:
         loader = WebBaseLoader(url)
         chunks = split_text_from_loader(loader)
+    
+    if metadata is None:
+        metadata = {}
+    metadata["recipe_id"] = recipe_id
     
     store_embeddings(chunks, embedding_function, metadata)
     
@@ -106,3 +119,41 @@ def query_vector_db(vegetables):
         })
     
     return recipes
+
+def fetch_embedding_ids_by_recipe_id(recipe_id):
+    CONNECTION_STRING = get_psycopg_connection_string()
+    connection = psycopg2.connect(CONNECTION_STRING)
+    cursor = connection.cursor()
+    embedding_ids = []
+
+    try:
+        # Query to fetch IDs of embeddings with the given recipe_id in metadata
+        fetch_query = "SELECT id FROM langchain_pg_embedding WHERE cmetadata->>'recipe_id' = %s"
+        cursor.execute(fetch_query, (str(recipe_id),))
+        embedding_ids = [row[0] for row in cursor.fetchall()]
+    except Exception as e:
+        print(f"Failed to fetch embedding IDs for recipe_id: {recipe_id}, error: {str(e)}")
+    finally:
+        cursor.close()
+        connection.close()
+
+    return embedding_ids
+
+def delete_recipe_from_vector_db(recipe_id):
+    CONNECTION_STRING = get_connection_string()
+    vectorstore = PGVector(
+        collection_name="plan_to_plate",
+        connection=CONNECTION_STRING,
+        embeddings=get_embedding_function(),
+    )
+    
+    try:
+        # Fetch embedding IDs to delete
+        embedding_ids = fetch_embedding_ids_by_recipe_id(recipe_id)
+        if embedding_ids:
+            vectorstore.delete(ids=embedding_ids)
+            print(f"Successfully deleted vectors for recipe_id: {recipe_id}")
+        else:
+            print(f"No vectors found for recipe_id: {recipe_id}")
+    except Exception as e:
+        print(f"Failed to delete vectors for recipe_id: {recipe_id}, error: {str(e)}")
