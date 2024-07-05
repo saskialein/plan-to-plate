@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Container, Flex, Heading, Spinner } from '@chakra-ui/react'
 import { HeaderActions } from '../components/Common/HeaderActions'
 import useCustomToast from '../hooks/useCustomToast'
@@ -5,11 +6,11 @@ import { useQuery } from 'react-query'
 import type { ApiError } from '../client'
 import { RecipesService } from '../client'
 import { RecipeList } from '../components/Recipes/RecipeList'
-import { useState } from 'react'
 
 export function Recipes() {
   const showToast = useCustomToast()
   const [searchQuery, setSearchQuery] = useState('')
+  const [selectedCategory, setSelectedCategory] = useState<string>('')
 
   const {
     data: recipes,
@@ -27,10 +28,21 @@ export function Recipes() {
     setSearchQuery(query)
   }
 
-  const filteredRecipes = recipes?.data?.filter((recipe) =>
-    recipe.title.toLowerCase().includes(searchQuery.toLowerCase()),
-  )
+  const handleCategoryChange = (
+    event: React.ChangeEvent<HTMLSelectElement>,
+  ) => {
+    setSelectedCategory(event.target.value)
+  }
 
+  const filteredRecipes = recipes?.data?.filter((recipe) => {
+    const matchesSearchQuery = recipe.title
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase())
+    const matchesCategory = selectedCategory
+      ? recipe?.categories?.includes(selectedCategory)
+      : true
+    return matchesSearchQuery && matchesCategory
+  })
   return (
     <>
       {isLoading ? (
@@ -48,7 +60,12 @@ export function Recipes() {
             >
               Recipes
             </Heading>
-            <HeaderActions type="Recipe" onSearch={handleSearch} />
+            <HeaderActions
+              type="Recipe"
+              onSearch={handleSearch}
+              onCategoryChange={handleCategoryChange}
+            />
+
             <RecipeList recipes={filteredRecipes} />
           </Container>
         )

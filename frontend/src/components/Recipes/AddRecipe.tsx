@@ -15,6 +15,8 @@ import {
   ModalHeader,
   ModalOverlay,
   Textarea,
+  Wrap,
+  WrapItem,
 } from '@chakra-ui/react'
 import { useForm } from 'react-hook-form'
 import { useMutation, useQueryClient } from 'react-query'
@@ -24,6 +26,7 @@ import { RecipesService } from '../../client'
 import useCustomToast from '../../hooks/useCustomToast'
 import { AiOutlinePaperClip } from 'react-icons/ai'
 import { IoMdClose } from 'react-icons/io'
+import { availableCategories } from './data/categories'
 
 type AddRecipeProps = {
   isOpen: boolean
@@ -37,6 +40,7 @@ type FormValues = {
   storeInVectorDb: boolean
   description?: string
   comment?: string
+  categories?: string[]
 }
 
 export function AddRecipe({ isOpen, onClose }: AddRecipeProps) {
@@ -57,6 +61,7 @@ export function AddRecipe({ isOpen, onClose }: AddRecipeProps) {
       file: null,
       url: '',
       storeInVectorDb: false,
+      categories: [],
     },
   })
 
@@ -90,6 +95,11 @@ export function AddRecipe({ isOpen, onClose }: AddRecipeProps) {
     formData.append('storeInVectorDb', data.storeInVectorDb.toString())
     formData.append('comment', data.comment || '')
 
+    const categories = data.categories || []
+    categories.forEach((category) => {
+      formData.append('categories', category)
+    })
+
     if (data.file && data.file[0]) {
       formData.append('file', data.file[0])
     }
@@ -102,7 +112,7 @@ export function AddRecipe({ isOpen, onClose }: AddRecipeProps) {
       if (txt.toLowerCase() === 'and') {
         return 'and'
       }
-      return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
+      return txt.charAt(0).toUpperCase() + txt.slice(1).toLowerCase()
     })
   }
 
@@ -119,7 +129,7 @@ export function AddRecipe({ isOpen, onClose }: AddRecipeProps) {
     <Modal
       isOpen={isOpen}
       onClose={handleClose}
-      size={{ base: 'sm', md: 'md' }}
+      size={{ base: 'lg', lg: 'lg' }}
       isCentered
     >
       <ModalOverlay />
@@ -246,6 +256,22 @@ export function AddRecipe({ isOpen, onClose }: AddRecipeProps) {
             >
               Consider for Meal Plan
             </Checkbox>
+          </FormControl>
+          <FormControl mt={4}>
+            <FormLabel>Categories (optional)</FormLabel>
+            <Wrap spacing={2}>
+              {availableCategories.map((category) => (
+                <WrapItem key={category}>
+                  <Checkbox
+                    colorScheme="teal"
+                    value={category}
+                    {...register('categories')}
+                  >
+                    {category}
+                  </Checkbox>
+                </WrapItem>
+              ))}
+            </Wrap>
           </FormControl>
         </ModalBody>
 

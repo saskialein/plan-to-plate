@@ -12,6 +12,8 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
+  Wrap,
+  WrapItem,
 } from '@chakra-ui/react'
 import type { SubmitHandler } from 'react-hook-form'
 import { useForm } from 'react-hook-form'
@@ -25,6 +27,7 @@ import type {
 } from '../../client'
 import { RecipesService } from '../../client'
 import useCustomToast from '../../hooks/useCustomToast'
+import { availableCategories } from './data/categories'
 
 type EditRecipeProps = {
   recipe: RecipeOut
@@ -121,6 +124,23 @@ export function EditRecipe({ recipe, isOpen, onClose }: EditRecipeProps) {
               >
                 Consider for Meal Plan
               </Checkbox>
+            </FormControl>
+            <FormControl mt={4}>
+              <FormLabel>Categories (optional)</FormLabel>
+              <Wrap spacing={2}>
+                {availableCategories.map((category) => (
+                  <WrapItem key={category}>
+                    <Checkbox
+                      colorScheme="teal"
+                      value={category}
+                      {...register('categories')}
+                      defaultChecked={recipe?.categories?.includes(category)}
+                    >
+                      {category}
+                    </Checkbox>
+                  </WrapItem>
+                ))}
+              </Wrap>
             </FormControl>
           </ModalBody>
           <ModalFooter gap={3}>
