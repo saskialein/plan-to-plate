@@ -28,47 +28,70 @@ class Meal(BaseModel):
     ingredients: Optional[List[str]] = None
     recipe_steps: Optional[List[str]] = None
 
-class MealPlan(BaseModel):
+class DailyMealPlan(BaseModel):
     breakfast: Meal
     lunch: Meal
     dinner: Meal
 
+class WeekMealPlan(BaseModel):
+    monday: DailyMealPlan
+    tuesday: DailyMealPlan
+    wednesday: DailyMealPlan
+    thursday: DailyMealPlan
+    friday: DailyMealPlan
+    saturday: DailyMealPlan
+    sunday: DailyMealPlan
+
 class MealPlanResponse(BaseModel):
-    response: Dict[str, MealPlan] = Field(
-        ...,
-        example={
-            "monday": {
-                "breakfast": {
-                    "recipe": "Sweet potato hash with eggs",
-                    "url": "https://example.com/recipe1"
-                },
-                "lunch": {
-                    "recipe": "Grilled chicken with roasted carrots",
-                    "url": "https://example.com/recipe2"
-                },
-                "dinner": {
-                    "recipe": "Butternut squash soup",
-                    "ingredients": ["2 cups butternut squash", "1 onion", "2 cups chicken broth"],
-                    "recipe_steps": ["1. Prepare ingredients.", "2. Cook the squash.", "3. Blend and serve."]
-                }
-            },
-            "tuesday": {
-                "breakfast": {
-                    "recipe": "Lettuce wraps with turkey and avocado",
-                    "url": "https://example.com/recipe4"
-                },
-                "lunch": {
-                    "recipe": "Butternut squash and chicken curry",
-                    "url": "https://example.com/recipe5"
-                },
-                "dinner": {
-                    "recipe": "Grilled salmon with roasted radicchio",
-                    "ingredients": ["1 salmon fillet", "1 radicchio", "1 tbsp olive oil"],
-                    "recipe_steps": ["1. Prepare ingredients.", "2. Grill the salmon.", "3. Serve with radicchio."]
-                }
-            }
-        },
-    )
+    response: WeekMealPlan
+
+# class Meal(BaseModel):
+#     recipe: str
+#     url: Optional[str] = None
+#     ingredients: Optional[List[str]] = None
+#     recipe_steps: Optional[List[str]] = None
+
+# class MealPlan(BaseModel):
+#     breakfast: Meal
+#     lunch: Meal
+#     dinner: Meal
+
+# class MealPlanResponse(BaseModel):
+#     response: Dict[str, MealPlan] = Field(
+#         ...,
+#         example={
+#             "monday": {
+#                 "breakfast": {
+#                     "recipe": "Sweet potato hash with eggs",
+#                     "url": "https://example.com/recipe1"
+#                 },
+#                 "lunch": {
+#                     "recipe": "Grilled chicken with roasted carrots",
+#                     "url": "https://example.com/recipe2"
+#                 },
+#                 "dinner": {
+#                     "recipe": "Butternut squash soup",
+#                     "ingredients": ["2 cups butternut squash", "1 onion", "2 cups chicken broth"],
+#                     "recipe_steps": ["1. Prepare ingredients.", "2. Cook the squash.", "3. Blend and serve."]
+#                 }
+#             },
+#             "tuesday": {
+#                 "breakfast": {
+#                     "recipe": "Lettuce wraps with turkey and avocado",
+#                     "url": "https://example.com/recipe4"
+#                 },
+#                 "lunch": {
+#                     "recipe": "Butternut squash and chicken curry",
+#                     "url": "https://example.com/recipe5"
+#                 },
+#                 "dinner": {
+#                     "recipe": "Grilled salmon with roasted radicchio",
+#                     "ingredients": ["1 salmon fillet", "1 radicchio", "1 tbsp olive oil"],
+#                     "recipe_steps": ["1. Prepare ingredients.", "2. Grill the salmon.", "3. Serve with radicchio."]
+#                 }
+#             }
+#         },
+#     )
 
 class MealPlanRequest(BaseModel):
     diets: List[str] = Field(..., example=["Paleo", "Keto"])
@@ -171,7 +194,7 @@ def generate_meal_plan(request: MealPlanRequest):
         
         When you use a recipe from the provided list, please include the URL. If the recipe is not from the provided list, please include the ingredients and recipe steps.
         
-        Please output the meal plan as JSON with the following format, replacing the example recipes with real recipes:
+        Please output the meal plan exclusively as JSON in the following format, replacing the example recipes with real recipes and not adding any additional comments:
         {{
             "monday": {{
                 "breakfast": {{"recipe": "Oatmeal with fruits", "url": "https://example.com/recipe1"}},
@@ -200,9 +223,13 @@ def generate_meal_plan(request: MealPlanRequest):
             "recipes": recipes_str
         })
  
-        meal_plan = response
-        # TODO: Fix the issue with the response JSON (no file paths and same meals for dinner/lunches)
-        for day, meals in meal_plan.items():
+        try:
+            meal_plan = WeekMealPlan(**response)
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=f"Invalid JSON output: {str(e)}")
+        
+        meal_plan_dict = meal_plan.dict()
+        for day, meals in meal_plan_dict.items():
             for meal_type, meal in meals.items():
                 # Check if the recipe is from the vector store
                 for recipe in recipes_data:
@@ -212,7 +239,7 @@ def generate_meal_plan(request: MealPlanRequest):
                         meal.pop('recipe_steps', None)
                         break
 
-        return {"response": meal_plan}
+        return {"response": meal_plan_dict}
     except Exception as e:
         print(f"Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
