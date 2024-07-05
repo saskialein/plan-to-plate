@@ -2,6 +2,7 @@ import React from 'react'
 import { Box, Flex, Icon, Text, useColorModeValue } from '@chakra-ui/react'
 import { FiBriefcase, FiHome, FiSettings, FiUsers } from 'react-icons/fi'
 import { GiCook } from 'react-icons/gi'
+import { GrPlan } from 'react-icons/gr'
 import { MdOutlineRamenDining } from 'react-icons/md'
 import { Link } from '@tanstack/react-router'
 import { useQueryClient } from 'react-query'
@@ -11,7 +12,8 @@ import type { UserOut } from '../../client'
 const items = [
   { icon: FiHome, title: 'Dashboard', path: '/' },
   { icon: MdOutlineRamenDining, title: 'Meal Planner', path: '/meal-planner' },
-  { icon: GiCook, title: 'Cookbook', path: '/recipes' },
+  { icon: GiCook, title: 'Recipe Hub', path: '/recipes' },
+  { icon: GrPlan, title: 'Meal Plans', path: '/meal-plans' },
   { icon: FiBriefcase, title: 'Items', path: '/items' },
   { icon: FiSettings, title: 'User Settings', path: '/settings' },
 ]

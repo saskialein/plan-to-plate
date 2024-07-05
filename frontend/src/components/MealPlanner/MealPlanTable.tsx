@@ -9,16 +9,17 @@ import {
   Th,
   Thead,
   Tr,
+  useDisclosure,
 } from '@chakra-ui/react'
 import { Link as RouterLink } from '@tanstack/react-router'
 import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { formatTitleToUrl } from '../../utils/route'
 import type { Meal, MealPlan } from '../../client'
+import { SaveMealPlanModal } from './SaveMealPlanModal'
 
 type MealPlanTableProps = {
   plan: Record<string, MealPlan>
 }
-
 const openInNewTab = (recipe: Meal) => {
   const url = `/recipes/${formatTitleToUrl(recipe.recipe)}`
   const stateKey = `recipe-${formatTitleToUrl(recipe.recipe)}`
@@ -28,6 +29,8 @@ const openInNewTab = (recipe: Meal) => {
 }
 
 export function MealPlanTable({ plan }: MealPlanTableProps) {
+  const saveMealPlanModal = useDisclosure()
+
   return (
     <Stack spacing={8} alignItems="center" mb={8}>
       <Table variant="simple">
@@ -109,10 +112,15 @@ export function MealPlanTable({ plan }: MealPlanTableProps) {
           colorScheme="teal"
           variant="outline"
           size="md"
-          onClick={() => console.log(plan)}
+          onClick={saveMealPlanModal.onOpen}
         >
           Save Meal Plan
         </Button>
+        <SaveMealPlanModal
+          plan={plan}
+          isOpen={saveMealPlanModal.isOpen}
+          onClose={saveMealPlanModal.onClose}
+        />
       </Box>
     </Stack>
   )
