@@ -1,12 +1,12 @@
-from typing import Any, List
+from typing import Any, Optional, List
 from pydantic import BaseModel
-from fastapi import APIRouter, HTTPException, UploadFile, File, Form, Request
+from fastapi import APIRouter, HTTPException, UploadFile, Query, Form, Request
 from app.api.deps import CurrentUser, SessionDep
 from app.models import RecipeCreate, RecipeUpdate, RecipeOut, RecipesOut, Message, CommentCreate, Comment, CommentOut
 from app import crud
 from app.utils import upload_file_to_b2, get_download_authorization, fetch_html_content, parse_open_graph_data
 from app.core.config import settings
-from app.core.vector_db_services import process_and_store_in_vector_db
+from app.core.vector_db_services import process_and_store_in_vector_db, delete_recipe_from_vector_db
 
 router = APIRouter()
 
@@ -20,13 +20,13 @@ async def create_recipe(
     Create new recipe.
     """
     form = await request.form()
-    data = dict(form)
 
-    title = data.get('title')
-    url = data.get('url')
-    description = data.get('description')
-    store_in_vector_db = data.get('storeInVectorDb', False)
-    comment = data.get('comment')
+    title = form.get('title')
+    url = form.get('url')
+    description = form.get('description')
+    store_in_vector_db = form.get('storeInVectorDb', 'false').lower() == 'true'
+    comment = form.get('comment')
+    categories = form.getlist('categories')  
     
     file_url = None
     file: UploadFile = form.get('file')
@@ -40,7 +40,8 @@ async def create_recipe(
         file_path=file_url,
         description=description,
         store_in_vector_db=store_in_vector_db,
-        comment=comment
+        comment=comment,
+        categories=categories
     )
     
     recipe = crud.create_recipe(db=session, recipe_in=recipe_in, user_id=current_user.id)
@@ -49,10 +50,10 @@ async def create_recipe(
         source = url if url else file_url
         metadata = {
             'title': title,
-            'source': source,  # Use source for both URL and file_path
+            'source': source,
             'language': 'en',
         }
-        process_and_store_in_vector_db(file_path=file_url, url=url, metadata=metadata)
+        process_and_store_in_vector_db(file_path=file_url, url=url, metadata=metadata, recipe_id=recipe.id)
         
     print("Created Recipe:", recipe)
     return recipe
@@ -79,12 +80,13 @@ def read_recipes(
     session: SessionDep,
     current_user: CurrentUser,
     skip: int = 0,
-    limit: int = 100
+    limit: int = 100,
+    category: str | None = None
 ) -> Any:
     """
     Retrieve recipes.
     """
-    recipes = crud.get_recipes(db=session, user_id=current_user.id, skip=skip, limit=limit)
+    recipes = crud.get_recipes(db=session, user_id=current_user.id, skip=skip, limit=limit, category=category)
     return RecipesOut(data=recipes, count=len(recipes))
 
 @router.put("/{recipe_id}", response_model=RecipeOut)
@@ -103,16 +105,22 @@ def update_recipe(
         raise HTTPException(status_code=404, detail="Recipe not found")
     if recipe.owner_id != current_user.id:
         raise HTTPException(status_code=403, detail="Not enough permissions")
-    recipe = crud.update_recipe(db=session, db_recipe=recipe, recipe_in=recipe_in)
-    if recipe_in.store_in_vector_db:
-        source = recipe.url if recipe.url else recipe.file_path
-        metadata = {
-            'title': recipe.title,
-            'source': source,
-            'language': 'en',
-        }
-        process_and_store_in_vector_db(file_path=recipe.file_path, url=recipe.url, metadata=metadata)
+    original_store_in_vector_db = recipe.store_in_vector_db 
     
+    recipe = crud.update_recipe(db=session, db_recipe=recipe, recipe_in=recipe_in)
+    
+    if original_store_in_vector_db != recipe_in.store_in_vector_db:
+        if recipe_in.store_in_vector_db:
+            source = recipe.url if recipe.url else recipe.file_path
+            metadata = {
+                'title': recipe.title,
+                'source': source,
+                'language': 'en',
+            }
+            process_and_store_in_vector_db(file_path=recipe.file_path, url=recipe.url, metadata=metadata, recipe_id=recipe.id)
+        else:
+            delete_recipe_from_vector_db(recipe_id=recipe.id)
+
     return recipe
 
 @router.delete("/{recipe_id}")
@@ -131,6 +139,8 @@ def delete_recipe(
     if recipe.owner_id != current_user.id:
         raise HTTPException(status_code=403, detail="Not enough permissions")
     crud.delete_recipe(db=session, db_recipe=recipe)
+    
+    delete_recipe_from_vector_db(recipe_id = recipe_id)
     return Message(message="Recipe deleted successfully")
 
 class FileRequest(BaseModel):

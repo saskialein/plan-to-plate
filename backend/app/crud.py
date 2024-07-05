@@ -1,6 +1,7 @@
 from typing import Any, List, Optional
 
 from sqlmodel import Session, select
+from sqlalchemy.sql import func
 
 from app.core.security import get_password_hash, verify_password
 from app.models import Item, ItemCreate, User, UserCreate, UserUpdate, RecipeCreate, Recipe, RecipeUpdate, Comment, CommentCreate
@@ -59,6 +60,7 @@ def create_recipe(db: Session, recipe_in: RecipeCreate, user_id: int) -> Recipe:
         file_path=recipe_in.file_path,
         description=recipe_in.description,
         store_in_vector_db=recipe_in.store_in_vector_db,
+        categories=recipe_in.categories if recipe_in.categories else [],
         owner_id=user_id
     )
     db.add(db_recipe)
@@ -75,13 +77,20 @@ def create_recipe(db: Session, recipe_in: RecipeCreate, user_id: int) -> Recipe:
 def get_recipe(db: Session, recipe_id: int) -> Optional[Recipe]:
     return db.query(Recipe).filter(Recipe.id == recipe_id).first()
 
-def get_recipes(db: Session, user_id: int, skip: int = 0, limit: int = 100) -> List[Recipe]:
-    return db.query(Recipe).filter(Recipe.owner_id == user_id).offset(skip).limit(limit).all()
+def get_recipes(db: Session, user_id: int, skip: int = 0, limit: int = 100, category: Optional[str] = None) -> List[Recipe]:
+    query = db.query(Recipe).filter(Recipe.owner_id == user_id)
+    if category:
+        query = query.filter(Recipe.categories.any(category))
+        # query = query.filter(func.array(Recipe.categories).overlap(func.text(categories)))
+
+    return query.offset(skip).limit(limit).all()
 
 def update_recipe(db: Session, db_recipe: Recipe, recipe_in: RecipeUpdate) -> Recipe:
     recipe_data = recipe_in.dict(exclude_unset=True, exclude={"comments"})
     for key, value in recipe_data.items():
         setattr(db_recipe, key, value)
+    if 'categories' not in recipe_data:
+        db_recipe.categories = []
     db.add(db_recipe)
     db.commit()
     db.refresh(db_recipe)
