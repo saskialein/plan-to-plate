@@ -213,9 +213,12 @@ export const DatePicker = ({
 
   const icon: ReactNode = <CalendarIcon fontSize="sm" />
 
+  const closePopover = () => setPopoverOpen(false)
+  const togglePopover = () => setPopoverOpen((prev) => !prev)
+
   useOutsideClick({
     ref: ref,
-    handler: () => setPopoverOpen(false),
+    handler: closePopover,
   })
 
   const onDateSelected = (options: { selectable: boolean; date: Date }) => {
@@ -223,8 +226,7 @@ export const DatePicker = ({
     if (!selectable) return
     if (!lodash_isNil(date)) {
       onDateChange(date)
-      setPopoverOpen(false)
-      return
+      closePopover()
     }
   }
 
@@ -239,24 +241,26 @@ export const DatePicker = ({
       placement="bottom-start"
       variant="responsive"
       isOpen={popoverOpen}
-      onClose={() => setPopoverOpen(false)}
+      onClose={closePopover}
       initialFocusRef={initialFocusRef}
       isLazy
     >
       <PopoverTrigger>
-        <InputGroup>
-          <InputComponent
-            id={id}
-            autoComplete="off"
-            isDisabled={disabled}
-            ref={initialFocusRef}
-            onClick={() => setPopoverOpen(!popoverOpen)}
-            name={name}
-            value={format(date, configs.dateFormat)}
-            onChange={(e) => e.target.value}
-          />
-          <InputRightElement color="gray.500">{icon}</InputRightElement>
-        </InputGroup>
+        <Box onClick={togglePopover}>
+          <InputGroup>
+            <InputComponent
+              id={id}
+              autoComplete="off"
+              isDisabled={disabled}
+              ref={initialFocusRef}
+              // onClick={() => setPopoverOpen(!popoverOpen)}
+              name={name}
+              value={format(date, configs.dateFormat)}
+              onChange={(e) => e.target.value}
+            />
+            <InputRightElement pointerEvents="none">{icon}</InputRightElement>
+          </InputGroup>
+        </Box>
       </PopoverTrigger>
       <PopoverContent ref={ref}>
         <PopoverBody
