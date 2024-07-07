@@ -35,9 +35,9 @@ export function Recipes() {
   }
 
   const filteredRecipes = recipes?.data?.filter((recipe) => {
-    const matchesSearchQuery = recipe.title
-      .toLowerCase()
-      .includes(searchQuery.toLowerCase())
+    const matchesSearchQuery = recipe?.title
+      ?.toLowerCase()
+      .includes(searchQuery?.toLowerCase())
     const matchesCategory = selectedCategory
       ? recipe?.categories?.includes(selectedCategory)
       : true
