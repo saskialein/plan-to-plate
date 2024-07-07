@@ -1,4 +1,4 @@
-import type { SubmitHandler} from 'react-hook-form';
+import type { SubmitHandler } from 'react-hook-form'
 import { useForm } from 'react-hook-form'
 import useCustomToast from '../hooks/useCustomToast'
 import { LoginService } from '../client'
@@ -11,6 +11,7 @@ import {
   Input,
   Text,
 } from '@chakra-ui/react'
+import { useNavigate } from '@tanstack/react-router'
 
 type FormData = {
   email: string
@@ -23,6 +24,7 @@ export function RecoverPassword() {
     formState: { errors, isSubmitting },
   } = useForm<FormData>()
   const showToast = useCustomToast()
+  const navigate = useNavigate()
 
   const onSubmit: SubmitHandler<FormData> = async (data) => {
     await LoginService.recoverPassword({
@@ -77,6 +79,13 @@ export function RecoverPassword() {
         isLoading={isSubmitting}
       >
         Continue
+      </Button>
+      <Button
+        variant="outline"
+        color="ui.main"
+        onClick={() => navigate({ to: '/login' })}
+      >
+        Back to login
       </Button>
     </Container>
   )
