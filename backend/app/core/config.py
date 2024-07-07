@@ -94,6 +94,7 @@ class Settings(BaseSettings):
     # TODO: update type to EmailStr when sqlmodel supports it
     FIRST_SUPERUSER: str
     FIRST_SUPERUSER_PASSWORD: str
+    FIRST_SUPERUSER_FULL_NAME: str
     USERS_OPEN_REGISTRATION: bool = False
     
     # Add Backblaze B2 settings
