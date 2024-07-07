@@ -37,23 +37,6 @@ services:
       - traefik.http.routers.${STACK_NAME}-adminer-https.tls.certresolver=le
       - traefik.http.services.${STACK_NAME}-adminer.loadbalancer.server.port=8080
 
-  langfuse:
-    image: ghcr.io/langfuse/langfuse:latest
-    platform: linux/amd64
-    depends_on:
-      - db
-    ports:
-      - "3000:3000"
-    environment:
-      - NODE_ENV=production
-      - DATABASE_URL=postgresql://langfuse:langfuse@db:5432/langfuse
-      - NEXTAUTH_SECRET=mysecret
-      - SALT=mysalt
-      - NEXTAUTH_URL=http:localhost:3000
-      - TELEMETRY_ENABLED=${TELEMETRY_ENABLED:-true}
-      - NEXT_PUBLIC_SIGN_UP_DISABLED=${NEXT_PUBLIC_SIGN_UP_DISABLED:-false}
-      - LANGFUSE_ENABLE_EXPERIMENTAL_FEATURES=${LANGFUSE_ENABLE_EXPERIMENTAL_FEATURES:-false}
-
   backend:
     image: "${DOCKER_IMAGE_BACKEND?Variable not set}:${TAG-latest}"
     restart: always
