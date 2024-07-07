@@ -107,12 +107,10 @@ def query_vector_db(vegetables):
     # print(f"Query Embedding: {query_embedding}")
 
     results = vectorstore.similarity_search(" ".join(vegetables), k=10)
-    print(f"Results: {results}")
 
     recipes = []
     for result in results:
         metadata = result.metadata
-        print(f"Metadata: {metadata}")
         recipes.append({
             'title': metadata.get('title'),
             'url': metadata.get('source') 
