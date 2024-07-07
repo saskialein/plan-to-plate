@@ -1,9 +1,9 @@
 from sqlmodel import Field, Relationship, SQLModel
-from typing import List, Optional
+from typing import List, Optional, Dict
 from datetime import datetime, timezone
 from humps import camelize
 from datetime import date
-from pydantic import BaseModel
+from pydantic import BaseModel, RootModel
 from sqlalchemy import JSON, Column, ARRAY, String
 
 def to_camel(string):
@@ -194,15 +194,8 @@ class MealPlan(BaseModel):
     lunch: Meal
     dinner: Meal
     
-class WeekMealPlan(BaseModel):
-    monday: MealPlan
-    tuesday: MealPlan
-    wednesday: MealPlan
-    thursday: MealPlan
-    friday: MealPlan
-    saturday: MealPlan
-    sunday: MealPlan
-
+class WeekMealPlan(RootModel):
+    root: Dict[str, MealPlan]
 
 class MealPlanBase(CamelModel):
     plan: WeekMealPlan = Field(sa_column=Column(JSON))
