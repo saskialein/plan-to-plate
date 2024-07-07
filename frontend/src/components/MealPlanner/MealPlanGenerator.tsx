@@ -1,4 +1,11 @@
-import { Box, Flex, Spinner, VStack } from '@chakra-ui/react'
+import {
+  Box,
+  Button,
+  Flex,
+  Spinner,
+  VStack,
+  useDisclosure,
+} from '@chakra-ui/react'
 import { useMutation } from 'react-query'
 import type { ApiError, MealPlan } from '../../client'
 import { LlmService } from '../../client'
@@ -8,6 +15,7 @@ import { useState } from 'react'
 import useCustomToast from '../../hooks/useCustomToast'
 import { MealPlanTable } from './MealPlanTable'
 import { MealPlanForm } from './MealPlanForm'
+import { SaveMealPlanModal } from './SaveMealPlanModal'
 
 export const MealPlanGenerator = () => {
   const [selectedDiets, setSelectedDiets] = useState<string[]>([])
@@ -15,6 +23,7 @@ export const MealPlanGenerator = () => {
   const [numberOfPeople, setNumberOfPeople] = useState<number>(2)
   const [startDay, setStartDay] = useState<string>('Saturday')
   const showToast = useCustomToast()
+  const saveMealPlanModal = useDisclosure()
 
   const [response, setResponse] = useState<
     Record<string, MealPlan> | undefined
@@ -68,9 +77,24 @@ export const MealPlanGenerator = () => {
         </Flex>
       )}{' '}
       {response && (
-        <Box mt={4}>
+        <Flex gap={2} direction="column" alignItems="center" mb={12}>
           <MealPlanTable plan={response} />
-        </Box>
+          <Box>
+            <Button
+              colorScheme="teal"
+              variant="outline"
+              size="md"
+              onClick={saveMealPlanModal.onOpen}
+            >
+              Save Meal Plan
+            </Button>
+          </Box>
+          <SaveMealPlanModal
+            plan={response}
+            isOpen={saveMealPlanModal.isOpen}
+            onClose={saveMealPlanModal.onClose}
+          />
+        </Flex>
       )}
     </VStack>
   )

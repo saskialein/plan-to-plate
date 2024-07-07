@@ -1,21 +1,8 @@
-import {
-  Box,
-  Button,
-  Link,
-  Stack,
-  Table,
-  Tbody,
-  Td,
-  Th,
-  Thead,
-  Tr,
-  useDisclosure,
-} from '@chakra-ui/react'
+import { Link, Stack, Table, Tbody, Td, Th, Thead, Tr } from '@chakra-ui/react'
 import { Link as RouterLink } from '@tanstack/react-router'
 import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { formatTitleToUrl } from '../../utils/route'
 import type { Meal, MealPlan } from '../../client'
-import { SaveMealPlanModal } from './SaveMealPlanModal'
 
 type MealPlanTableProps = {
   plan: Record<string, MealPlan>
@@ -29,7 +16,9 @@ const openInNewTab = (recipe: Meal) => {
 }
 
 export function MealPlanTable({ plan }: MealPlanTableProps) {
-  const saveMealPlanModal = useDisclosure()
+  if (!plan) {
+    return <div>No meal plan available.</div>
+  }
 
   return (
     <Stack spacing={8} alignItems="center" mb={8}>
@@ -107,21 +96,6 @@ export function MealPlanTable({ plan }: MealPlanTableProps) {
           ))}
         </Tbody>
       </Table>
-      <Box>
-        <Button
-          colorScheme="teal"
-          variant="outline"
-          size="md"
-          onClick={saveMealPlanModal.onOpen}
-        >
-          Save Meal Plan
-        </Button>
-        <SaveMealPlanModal
-          plan={plan}
-          isOpen={saveMealPlanModal.isOpen}
-          onClose={saveMealPlanModal.onClose}
-        />
-      </Box>
     </Stack>
   )
 }
