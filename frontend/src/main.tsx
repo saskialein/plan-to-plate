@@ -1,6 +1,10 @@
 import ReactDOM from 'react-dom/client'
 import { ChakraProvider } from '@chakra-ui/react'
-import { QueryClient, QueryClientProvider } from 'react-query'
+import {
+  type DefaultOptions,
+  QueryClient,
+  QueryClientProvider,
+} from 'react-query'
 import { RouterProvider, createRouter } from '@tanstack/react-router'
 import { routeTree } from './routeTree.gen'
 import './assets/fonts/fonts.css'
@@ -14,7 +18,17 @@ OpenAPI.TOKEN = async () => {
   return localStorage.getItem('access_token') || ''
 }
 
-const queryClient = new QueryClient()
+const queryConfig: DefaultOptions = {
+  queries: {
+    staleTime: 5 * 60 * 1000,
+    // refetchOnWindowFocus: false,
+    // retry: false,
+  },
+}
+
+const queryClient = new QueryClient({
+  defaultOptions: queryConfig,
+})
 
 const router = createRouter({ routeTree })
 
