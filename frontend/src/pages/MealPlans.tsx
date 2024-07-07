@@ -6,40 +6,26 @@ import {
   AccordionIcon,
   AccordionItem,
   AccordionPanel,
-  Box,
   Container,
   Flex,
   Heading,
+  IconButton,
   Spinner,
   Stack,
+  useDisclosure,
 } from '@chakra-ui/react'
 import { MealPlanTable } from '../components/MealPlanner/MealPlanTable'
+import { DeleteIcon } from '@chakra-ui/icons'
+import { DeleteMealPlanModal } from '../components/MealPlans/DeleteMealPlanModal'
+import { formatDateRange } from '../components/MealPlans/utils/formatDateRange'
+import { isWithinInterval, parseISO } from 'date-fns'
 
 export function MealPlans() {
-  const { data: mealPlans, isLoading } = useQuery('recipes', () =>
+  const deleteMealPlanModal = useDisclosure()
+
+  const { data: mealPlans, isLoading } = useQuery('meal-plans', () =>
     MealPlansService.readMealPlans({ limit: 50 }),
   )
-
-  const formatDateRange = (startDate: string) => {
-    const start = new Date(startDate)
-    const end = new Date(start)
-    end.setDate(start.getDate() + 6)
-
-    const options: Intl.DateTimeFormatOptions = {
-      weekday: 'short',
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-    }
-    const startFormatted = start
-      .toLocaleDateString('en-GB', options)
-      .replace(/,/g, '')
-    const endFormatted = end
-      .toLocaleDateString('en-GB', options)
-      .replace(/,/g, '')
-
-    return `${startFormatted} - ${endFormatted}`
-  }
 
   if (isLoading) {
     return (
@@ -49,45 +35,62 @@ export function MealPlans() {
     )
   }
 
+  const today = new Date()
+
   const sortedMealPlans = mealPlans?.data.sort(
     (a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime(),
   )
-  const latestMealPlanId = sortedMealPlans?.[0]?.id
+  const currentMealPlanId = sortedMealPlans?.find((mealPlan) => {
+    const startDate = parseISO(mealPlan.startDate)
+    const endDate = new Date(startDate)
+    endDate.setDate(startDate.getDate() + 6)
+    return isWithinInterval(today, { start: startDate, end: endDate })
+  })?.id
 
   return (
     <Container maxW="full">
       <Heading size="lg" textAlign={{ base: 'center', md: 'left' }} pt={12}>
         Meal Plans
       </Heading>
-      <Stack py={8} width="100%">
-        <Accordion allowToggle>
-          {sortedMealPlans?.map((mealPlan) => (
-            <AccordionItem
-              key={mealPlan.id}
-              borderColor={
-                mealPlan.id === latestMealPlanId ? 'teal.500' : 'gray.200'
-              }
-            >
-              <h2>
-                <AccordionButton
-                  sx={{ fontSize: '1.5rem' }}
-                  color={
-                    mealPlan.id === latestMealPlanId ? 'teal.500' : 'inherit'
-                  }
-                >
-                  <Box flex="1" textAlign="left">
+      {mealPlans?.data ? (
+        <Stack py={8} width="100%">
+          <Accordion allowToggle>
+            {sortedMealPlans?.map((mealPlan) => (
+              <AccordionItem key={mealPlan.id}>
+                <Flex as="h2" align="center" justify="space-between">
+                  <AccordionButton
+                    sx={{ fontSize: '1.5rem' }}
+                    color={
+                      mealPlan.id === currentMealPlanId ? 'teal.500' : 'inherit'
+                    }
+                    flex="1"
+                    textAlign="left"
+                    gap={4}
+                  >
                     {formatDateRange(mealPlan.startDate)}
-                  </Box>
-                  <AccordionIcon />
-                </AccordionButton>
-              </h2>
-              <AccordionPanel pb={4}>
-                <MealPlanTable plan={mealPlan.plan} />
-              </AccordionPanel>
-            </AccordionItem>
-          ))}
-        </Accordion>
-      </Stack>
+                    <AccordionIcon />
+                  </AccordionButton>
+                  <IconButton
+                    icon={<DeleteIcon boxSize={5} />}
+                    onClick={deleteMealPlanModal.onOpen}
+                    aria-label="Delete meal plan"
+                    size="sm"
+                    colorScheme="teal"
+                  />
+                  <DeleteMealPlanModal
+                    mealPlan={mealPlan}
+                    isOpen={deleteMealPlanModal.isOpen}
+                    onClose={deleteMealPlanModal.onClose}
+                  />
+                </Flex>
+                <AccordionPanel pb={4}>
+                  <MealPlanTable plan={mealPlan.plan} />
+                </AccordionPanel>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        </Stack>
+      ) : null}
     </Container>
   )
 }
