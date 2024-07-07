@@ -14,7 +14,7 @@ import {
 } from '@chakra-ui/react'
 import useAuth from '../hooks/useAuth'
 import { useState } from 'react'
-import type { SubmitHandler} from 'react-hook-form';
+import type { SubmitHandler } from 'react-hook-form'
 import { useForm } from 'react-hook-form'
 import type {
   ApiError,
@@ -109,11 +109,6 @@ export function Login() {
           </InputGroup>
           {error && <FormErrorMessage>{error}</FormErrorMessage>}
         </FormControl>
-        <Center>
-          <Link as={RouterLink} to="/recover-password" color="blue.500">
-            Forgot password?
-          </Link>
-        </Center>
         <Button
           bg="ui.main"
           color="white"
@@ -123,6 +118,11 @@ export function Login() {
         >
           Log In
         </Button>
+        <Center>
+          <Link as={RouterLink} to="/recover-password" color="blue.500">
+            Forgot password?
+          </Link>
+        </Center>
       </Container>
     </>
   )
