@@ -1,6 +1,7 @@
 import {
   Button,
   FormControl,
+  FormErrorMessage,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -10,21 +11,26 @@ import {
   ModalOverlay,
 } from '@chakra-ui/react'
 import { DatePicker } from '../Common/DatePicker'
-import { useState } from 'react'
-import { useMutation } from 'react-query'
+import { useForm, Controller } from 'react-hook-form'
+import { useMutation, useQueryClient } from 'react-query'
 import {
-  type ApiError,
   MealPlansService,
+  type ApiError,
   type WeekMealPlan_Input,
   type MealPlan,
 } from '../../client'
 import useCustomToast from '../../hooks/useCustomToast'
 import { format } from 'date-fns'
+import { useNavigate } from '@tanstack/react-router'
 
 export type SaveMealPlanModalProps = {
   plan: Record<string, MealPlan>
   isOpen: boolean
   onClose: () => void
+}
+
+type FormValues = {
+  startDate: Date
 }
 
 export function SaveMealPlanModal({
@@ -33,8 +39,19 @@ export function SaveMealPlanModal({
   onClose,
 }: SaveMealPlanModalProps) {
   const showToast = useCustomToast()
+  const navigate = useNavigate()
+  const queryClient = useQueryClient()
 
-  const [startDate, setStartDate] = useState<Date>(new Date())
+  const {
+    handleSubmit,
+    control,
+    reset,
+    formState: { errors },
+  } = useForm<FormValues>({
+    defaultValues: {
+      startDate: new Date(),
+    },
+  })
 
   const mutation = useMutation(
     (data: { plan: WeekMealPlan_Input; startDate: string }) =>
@@ -47,12 +64,16 @@ export function SaveMealPlanModal({
       onSuccess: () => {
         showToast('Success!', 'Meal plan saved successfully.', 'success')
         onClose()
+        navigate({ to: '/meal-plans' })
+      },
+      onSettled: () => {
+        queryClient.invalidateQueries('meal-plans')
       },
     },
   )
 
-  const handleSaveMealPlan = () => {
-    const formattedDate = format(startDate, 'yyyy-MM-dd')
+  const onSubmit = (data: FormValues) => {
+    const formattedDate = format(data.startDate, 'yyyy-MM-dd')
     mutation.mutate({
       plan: plan as WeekMealPlan_Input,
       startDate: formattedDate,
@@ -60,7 +81,7 @@ export function SaveMealPlanModal({
   }
 
   const handleClose = () => {
-    setStartDate(new Date())
+    reset()
     onClose()
   }
 
@@ -72,15 +93,22 @@ export function SaveMealPlanModal({
       isCentered
     >
       <ModalOverlay />
-      <ModalContent as="form" onSubmit={handleSaveMealPlan}>
+      <ModalContent as="form" onSubmit={handleSubmit(onSubmit)}>
         <ModalHeader>Meal Plan Start Date</ModalHeader>
         <ModalCloseButton />
         <ModalBody pb={6}>
-          <FormControl isRequired>
-            <DatePicker date={startDate} onDateChange={setStartDate} />
-            {/* {errors.content && (
-              <FormErrorMessage>{errors.content.message}</FormErrorMessage>
-            )} */}
+          <FormControl isRequired isInvalid={!!errors.startDate}>
+            <Controller
+              name="startDate"
+              control={control}
+              rules={{ required: 'Start date is required' }}
+              render={({ field }) => (
+                <DatePicker date={field.value} onDateChange={field.onChange} />
+              )}
+            />
+            {errors.startDate && (
+              <FormErrorMessage>{errors.startDate.message}</FormErrorMessage>
+            )}
           </FormControl>
         </ModalBody>
 
