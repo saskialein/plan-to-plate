@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field, RootModel
-from typing import Dict, List, Optional
+from typing import Dict, Optional
 from langchain_openai import ChatOpenAI
 from langchain_groq import ChatGroq
 from langchain_core.messages import HumanMessage, AIMessage
@@ -25,8 +25,8 @@ def get_session_history(session_id: str) -> BaseChatMessageHistory:
 class Meal(BaseModel):
     recipe: str
     url: Optional[str] = None
-    ingredients: Optional[List[str]] = None
-    recipe_steps: Optional[List[str]] = None
+    ingredients: Optional[list[str]] = None
+    recipe_steps: Optional[list[str]] = None
 
 class DailyMealPlan(BaseModel):
     breakfast: Meal
@@ -40,8 +40,8 @@ class MealPlanResponse(BaseModel):
     response: WeekMealPlan
 
 class MealPlanRequest(BaseModel):
-    diets: List[str] = Field(..., example=["Paleo", "Keto"])
-    vegetables: List[str] = Field(..., example=["Carrots", "Beetroot", "Pumpkin"])
+    diets: list[str] = Field(..., example=["Paleo", "Keto"])
+    vegetables: list[str] = Field(..., example=["Carrots", "Beetroot", "Pumpkin"])
     numberOfPeople: int = Field(..., example=2)
     startDay: str = Field(..., example="Monday")
 
@@ -55,7 +55,7 @@ class ChatRequest(BaseModel):
 
 class ChatResponse(BaseModel):
     response: str = Field(..., example="The best way to prepare carrots is to roast them with some olive oil, salt, and pepper until they are tender and caramelized.")
-    history: List[ChatMessage]
+    history: list[ChatMessage]
     
 @router.post("/chat", response_model=ChatResponse, summary="Chat with AI", description="Get answers to your questions from the AI.")
 def chat_with_ai(request: ChatRequest):
@@ -106,7 +106,7 @@ def generate_meal_plan(request: MealPlanRequest):
         numberOfPeople = request.numberOfPeople
         startDay = request.startDay.lower()
         
-         # Prepare ordered days
+        # Prepare ordered days
         days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
         start_index = days.index(startDay)
         ordered_days = days[start_index:] + days[:start_index]
@@ -131,7 +131,7 @@ def generate_meal_plan(request: MealPlanRequest):
         You are the world's most comprehensive recipe book. Create a weekly meal plan (breakfast, lunch, dinner) based on these diets: {diets}. If no diets are specified, assume omnivore.
 
         STRICT REQUIREMENTS (MUST BE FOLLOWED):
-        1. The meal plan MUST start on {startDay}. You MUST use these exact day keys in this exact order: {ordered_days}      
+        1. The meal plan MUST start on {startDay}. You MUST use these exact day keys in this exact order: {ordered_days}.
         2. Meals are for {numberOfPeople} people.
         3. These vegetables MUST be used throughout the meal plan: {vegetables}. You may add seasonal New Zealand vegetables.
         4. All meals must be healthy, balanced, whole foods. NO processed foods.

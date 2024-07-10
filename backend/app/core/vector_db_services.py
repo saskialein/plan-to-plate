@@ -6,6 +6,7 @@ from langchain_postgres.vectorstores import PGVector
 from langchain.indexes import SQLRecordManager, index
 import os
 import psycopg2
+import uuid
 
 EMBEDDING_MODEL_NAME = "BAAI/bge-small-en-v1.5"
 EMBEDDING_MODEL_KWARGS = {'device': 'cpu'}
@@ -70,6 +71,12 @@ def store_embeddings(chunks, embedding_function, metadata):
         namespace, db_url=CONNECTION_STRING
     )
     record_manager.create_schema()
+    
+   # Convert UUIDs in metadata to strings
+    for key, value in metadata.items():
+        if isinstance(value, uuid.UUID):
+            metadata[key] = str(value)
+    
     for chunk in chunks:
         chunk.metadata.update(metadata)
     result = index(chunks, record_manager, vectorstore, cleanup=None, source_id_key="source")
@@ -91,6 +98,7 @@ def process_and_store_in_vector_db(file_path=None, url=None, metadata=None, reci
     
     if metadata is None:
         metadata = {}
+        
     metadata["recipe_id"] = recipe_id
     
     store_embeddings(chunks, embedding_function, metadata)
@@ -125,6 +133,8 @@ def fetch_embedding_ids_by_recipe_id(recipe_id):
     embedding_ids = []
 
     try:
+        if isinstance(recipe_id, uuid.UUID):
+            recipe_id = str(recipe_id)
         # Query to fetch IDs of embeddings with the given recipe_id in metadata
         fetch_query = "SELECT id FROM langchain_pg_embedding WHERE cmetadata->>'recipe_id' = %s"
         cursor.execute(fetch_query, (str(recipe_id),))

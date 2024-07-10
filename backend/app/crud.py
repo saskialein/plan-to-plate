@@ -1,11 +1,11 @@
 from typing import Any, List, Optional
 
 from sqlmodel import Session, select
-from sqlalchemy.sql import func
 
 from app.core.security import get_password_hash, verify_password
 from app.models import Item, ItemCreate, User, UserCreate, UserUpdate, RecipeCreate, Recipe, RecipeUpdate, Comment, CommentCreate
 from app.utils import delete_file_from_b2
+from uuid import UUID
 
 def create_user(*, session: Session, user_create: UserCreate) -> User:
     db_obj = User.model_validate(
@@ -46,14 +46,14 @@ def authenticate(*, session: Session, email: str, password: str) -> User | None:
     return db_user
 
 
-def create_item(*, session: Session, item_in: ItemCreate, owner_id: int) -> Item:
+def create_item(*, session: Session, item_in: ItemCreate, owner_id: UUID) -> Item:
     db_item = Item.model_validate(item_in, update={"owner_id": owner_id})
     session.add(db_item)
     session.commit()
     session.refresh(db_item)
     return db_item
 
-def create_recipe(db: Session, recipe_in: RecipeCreate, user_id: int) -> Recipe:
+def create_recipe(db: Session, recipe_in: RecipeCreate, user_id: UUID) -> Recipe:
     db_recipe = Recipe(
         title=recipe_in.title,
         url=recipe_in.url,
@@ -74,10 +74,10 @@ def create_recipe(db: Session, recipe_in: RecipeCreate, user_id: int) -> Recipe:
         
     return db_recipe
 
-def get_recipe(db: Session, recipe_id: int) -> Optional[Recipe]:
+def get_recipe(db: Session, recipe_id: UUID) -> Optional[Recipe]:
     return db.query(Recipe).filter(Recipe.id == recipe_id).first()
 
-def get_recipes(db: Session, user_id: int, skip: int = 0, limit: int = 100, category: Optional[str] = None) -> List[Recipe]:
+def get_recipes(db: Session, user_id: UUID, skip: int = 0, limit: int = 100, category: Optional[str] = None) -> List[Recipe]:
     query = db.query(Recipe).filter(Recipe.owner_id == user_id)
     if category:
         query = query.filter(Recipe.categories.any(category))
@@ -103,14 +103,14 @@ def delete_recipe(db: Session, db_recipe: Recipe) -> None:
     db.delete(db_recipe)
     db.commit()
     
-def add_comment(db: Session, comment_in: CommentCreate, recipe_id: int, user_id: int) -> Comment:
+def add_comment(db: Session, comment_in: CommentCreate, recipe_id: UUID, user_id: UUID) -> Comment:
     db_comment = Comment(**comment_in.dict(), recipe_id=recipe_id, user_id=user_id)
     db.add(db_comment)
     db.commit()
     db.refresh(db_comment)
     return db_comment
 
-def delete_comment(db: Session, comment_id: int) -> None:
+def delete_comment(db: Session, comment_id: UUID) -> None:
     db_comment = db.query(Comment).filter(Comment.id == comment_id).first()
     if db_comment:
         db.delete(db_comment)

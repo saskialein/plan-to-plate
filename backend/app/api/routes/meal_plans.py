@@ -2,6 +2,7 @@ from typing import Any
 from fastapi import APIRouter, HTTPException
 from sqlmodel import func, select
 from fastapi.encoders import jsonable_encoder
+from uuid import UUID
 
 from app.api.deps import CurrentUser, SessionDep
 from app.models import MealPlan, MealPlanCreate, MealPlanOut, MealPlansOut, Message
@@ -48,7 +49,7 @@ def read_meal_plans(
     return MealPlansOut(data=meal_plans, count=count)
 
 @router.delete("/{id}")
-def delete_meal_plan(session: SessionDep, current_user: CurrentUser, id: int) -> Message:
+def delete_meal_plan(session: SessionDep, current_user: CurrentUser, id: UUID) -> Message:
     """
     Delete a meal plan.
     """

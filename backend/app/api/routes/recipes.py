@@ -1,12 +1,13 @@
-from typing import Any, Optional, List
+from typing import Any
 from pydantic import BaseModel
-from fastapi import APIRouter, HTTPException, UploadFile, Query, Form, Request
+from fastapi import APIRouter, HTTPException, UploadFile, Form, Request
 from app.api.deps import CurrentUser, SessionDep
 from app.models import RecipeCreate, RecipeUpdate, RecipeOut, RecipesOut, Message, CommentCreate, Comment, CommentOut
 from app import crud
 from app.utils import upload_file_to_b2, get_download_authorization, fetch_html_content, parse_open_graph_data
 from app.core.config import settings
 from app.core.vector_db_services import process_and_store_in_vector_db, delete_recipe_from_vector_db
+from uuid import UUID
 
 router = APIRouter()
 
@@ -53,7 +54,7 @@ async def create_recipe(
             'source': source,
             'language': 'en',
         }
-        process_and_store_in_vector_db(file_path=file_url, url=url, metadata=metadata, recipe_id=recipe.id)
+        process_and_store_in_vector_db(file_path=file_url, url=url, metadata=metadata, recipe_id=str(recipe.id))
         
     print("Created Recipe:", recipe)
     return recipe
@@ -62,7 +63,7 @@ async def create_recipe(
 def read_recipe(
     *,
     session: SessionDep,
-    recipe_id: int,
+    recipe_id: UUID,
     current_user: CurrentUser
 ) -> Any:
     """
@@ -93,7 +94,7 @@ def read_recipes(
 def update_recipe(
     *,
     session: SessionDep,
-    recipe_id: int,
+    recipe_id: UUID,
     recipe_in: RecipeUpdate,
     current_user: CurrentUser,
 ) -> Any:
@@ -117,7 +118,7 @@ def update_recipe(
                 'source': source,
                 'language': 'en',
             }
-            process_and_store_in_vector_db(file_path=recipe.file_path, url=recipe.url, metadata=metadata, recipe_id=recipe.id)
+            process_and_store_in_vector_db(file_path=recipe.file_path, url=recipe.url, metadata=metadata, recipe_id=str(recipe.id))
         else:
             delete_recipe_from_vector_db(recipe_id=recipe.id)
 
@@ -127,7 +128,7 @@ def update_recipe(
 def delete_recipe(
     *,
     session: SessionDep,
-    recipe_id: int,
+    recipe_id: UUID,
     current_user: CurrentUser,
 ) -> Message:
     """
@@ -140,7 +141,7 @@ def delete_recipe(
         raise HTTPException(status_code=403, detail="Not enough permissions")
     crud.delete_recipe(db=session, db_recipe=recipe)
     
-    delete_recipe_from_vector_db(recipe_id = recipe_id)
+    delete_recipe_from_vector_db(recipe_id = str(recipe_id))
     return Message(message="Recipe deleted successfully")
 
 class FileRequest(BaseModel):
@@ -175,7 +176,7 @@ async def fetch_opengraph(data: URLRequest):
 def add_comment(
     *,
     session: SessionDep,
-    recipe_id: int,
+    recipe_id: UUID,
     content: str = Form(...),
     current_user: CurrentUser
 ) -> Any:
@@ -190,7 +191,7 @@ def add_comment(
 def delete_comment(
     *,
     session: SessionDep,
-    comment_id: int,
+    comment_id: UUID,
     current_user: CurrentUser,
 ) -> Message:
     """

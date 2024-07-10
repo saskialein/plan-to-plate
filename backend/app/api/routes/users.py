@@ -1,7 +1,8 @@
 from typing import Any
 import logging
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import col, delete, func, select
+from uuid import UUID
 
 from app import crud
 from app.api.deps import (
@@ -153,7 +154,7 @@ def create_user_open(session: SessionDep, user_in: UserCreateOpen) -> Any:
 
 @router.get("/{user_id}", response_model=UserOut)
 def read_user_by_id(
-    user_id: int, session: SessionDep, current_user: CurrentUser
+    user_id: UUID, session: SessionDep, current_user: CurrentUser
 ) -> Any:
     """
     Get a specific user by id.
@@ -177,7 +178,7 @@ def read_user_by_id(
 def update_user(
     *,
     session: SessionDep,
-    user_id: int,
+    user_id: UUID,
     user_in: UserUpdate,
 ) -> Any:
     """
@@ -203,7 +204,7 @@ def update_user(
 
 @router.delete("/{user_id}")
 def delete_user(
-    session: SessionDep, current_user: CurrentUser, user_id: int
+    session: SessionDep, current_user: CurrentUser, user_id: UUID
 ) -> Message:
     """
     Delete a user.

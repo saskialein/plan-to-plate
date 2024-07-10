@@ -5,6 +5,11 @@ from starlette.middleware.cors import CORSMiddleware
 from app.api.main import api_router
 from app.core.config import settings
 
+import logging
+
+logging.basicConfig()
+logging.getLogger("sqlalchemy.engine").setLevel(logging.INFO)
+
 
 def custom_generate_unique_id(route: APIRoute) -> str:
     return f"{route.tags[0]}-{route.name}"
