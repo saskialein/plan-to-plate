@@ -6,12 +6,14 @@ import {
   AccordionIcon,
   AccordionItem,
   AccordionPanel,
+  Box,
   Container,
   Flex,
   Heading,
   IconButton,
   Spinner,
   Stack,
+  Text,
   useDisclosure,
 } from '@chakra-ui/react'
 import { MealPlanTable } from '../components/MealPlanner/MealPlanTable'
@@ -52,7 +54,7 @@ export function MealPlans() {
       <Heading size="lg" textAlign={{ base: 'center', md: 'left' }} pt={12}>
         Meal Plans
       </Heading>
-      {mealPlans?.data ? (
+      {mealPlans && mealPlans?.data?.length > 0 ? (
         <Stack py={8} width="100%">
           <Accordion allowToggle>
             {sortedMealPlans?.map((mealPlan) => (
@@ -90,7 +92,12 @@ export function MealPlans() {
             ))}
           </Accordion>
         </Stack>
-      ) : null}
+      ) : (
+        <Box width="full" textAlign="center" py={8}>
+          <Text fontSize="xl">No Meal Plans Saved.</Text>
+          <Text fontSize="xl">Go to Meal Planner to create a new one!</Text>
+        </Box>
+      )}
     </Container>
   )
 }
