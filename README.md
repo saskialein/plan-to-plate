@@ -2,6 +2,8 @@
 
 Plan to Plate is an AI-powered meal planning app designed to help people create weekly meal plans based on their vegetable box contents and dietary preferences. The app generates customisable meal plans with clickable recipe links and serves as a recipe book for users to store and manage their favourite recipes. 
 
+Note: _This app is not deployed yet._
+
 ## ⚙️ Tech Stack
 - FastAPI
     - SQLModel (ORM)
